@@ -16,20 +16,30 @@ repos:
       - id: check-toml
       - id: check-case-conflict
       - id: check-added-large-files
+      - id: double-quote-string-fixer
 
-  # python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
+    # python code formatting
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.2
     hooks:
-      - id: black
-        args: [--line-length, "99"]
+      - id: autopep8
+        name: autopep8-default
+        args: [--max-line-length, "110", --in-place]
+        exclude: tests/.*
+
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.2
+    hooks:
+      - id: autopep8
+        name: autopep8-unit-tests
+        args: ["-i", "--ignore=E226,E24,W50,W690,E402"]
 
   # python import sorting
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
-        args: ["--profile", "black", "--filter-files"]
+        args: ["--skip-gitignore", "--line-length", "110"]
 
   # python upgrading syntax to newer version
   - repo: https://github.com/asottile/pyupgrade
@@ -43,20 +53,14 @@ repos:
     rev: v1.5.1
     hooks:
       - id: docformatter
-        args: [--in-place, --wrap-summaries=99, --wrap-descriptions=99]
+        args: [--in-place, --wrap-summaries, "100", --wrap-descriptions, "110"]
 
   # python check (PEP8), programming errors and code complexity
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:
       - id: flake8
-        args:
-          [
-            "--extend-ignore",
-            "E203,E402,E501,F401,F841",
-            "--exclude",
-            "logs/*,data/*",
-          ]
+        args: ["--extend-ignore", "E402,E501", "--exclude", "logs/*,data/*"]
 
   # python security linter
   - repo: https://github.com/PyCQA/bandit
@@ -112,7 +116,7 @@ repos:
     rev: 1.6.3
     hooks:
       - id: nbqa-black
-        args: ["--line-length=99"]
+        args: ["--line-length=110"]
       - id: nbqa-isort
         args: ["--profile=black"]
       - id: nbqa-flake8

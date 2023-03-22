@@ -1,22 +1,41 @@
-## What does this PR do?
+# Description
 
-<!--
-Please include a summary of the change and which issue is fixed.
-Please also include relevant motivation and context.
-List any dependencies that are required for this change.
-List all the breaking changes introduced by this pull request.
--->
+Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
 
-Fixes #\<issue_number>
+Fixes # (issue)
 
-## Before submitting
+## Type of change
 
-- [ ] Did you make sure **title is self-explanatory** and **the description concisely explains the PR**?
-- [ ] Did you make sure your **PR does only one thing**, instead of bundling different changes together?
-- [ ] Did you list all the **breaking changes** introduced by this pull request?
-- [ ] Did you **test your PR locally** with `pytest` command?
-- [ ] Did you **run pre-commit hooks** with `pre-commit run -a` command?
+Please delete options that are not relevant.
 
-## Did you have fun?
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] This change requires a documentation update
 
-Make sure you had fun coding 🙃
+# How Has This Been Tested?
+
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+
+- [ ] Test A
+- [ ] Test B
+
+**Test Configuration**:
+
+- Firmware version:
+- Hardware:
+- Toolchain:
+- SDK:
+
+# Checklist:
+
+- [ ] Did you make sure title is self-explanatory and the description concisely explains the PR?
+- [ ] Did you make sure your PR does only one thing, instead of bundling different changes together?
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published in downstream modules

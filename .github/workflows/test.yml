@@ -1,10 +1,11 @@
 name: Tests
 
 on:
+  # Runt test when pushing to main branch.
   push:
     branches: [main]
+  # Run for any PRs.
   pull_request:
-    branches: [main, "release/*", "dev"]
 
 jobs:
   run_tests_ubuntu:

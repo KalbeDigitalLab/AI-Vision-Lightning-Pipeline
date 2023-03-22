@@ -1,3 +1,21 @@
+[tool.isort]
+line_length = 110
+profile = "black"
+filter_files = "True"
+
+[tool.flake8]
+max-line-length = 110
+show-source = "True"
+format = "pylint"
+exclude = [
+    ".git",
+    "__pycache__",
+    "data/*",
+    "tests/*",
+    "notebooks/*",
+    "logs/*",
+]
+
 [tool.pytest.ini_options]
 addopts = [
   "--color=yes",

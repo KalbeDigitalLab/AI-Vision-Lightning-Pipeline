@@ -27,4 +27,5 @@ rich            # beautiful text formatting in terminal
 # --------- others --------- #
 pyrootutils     # standardizing the project root setup
 pytest          # tests
+fiftyone        # fiftyone dataset
 # sh            # for running bash commands in some tests (linux/macos only)

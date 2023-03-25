@@ -1,13 +1,13 @@
 import json
 import os
-from typing import Any
+from typing import Any, Optional
 
 import fiftyone
 from torch.utils.data import Dataset
 
 
 class FiftyOneDatasetParser(Dataset):
-    """FiftyoneDataset Format Parser.
+    """FiftyoneDataset format parser.
 
     Parse FiftyoneDataset format to torch Dataset.
     Reference: https://docs.voxel51.com/api/fiftyone.types.html#fiftyone.types.FiftyOneDataset
@@ -27,7 +27,7 @@ class FiftyOneDatasetParser(Dataset):
         If the dataset has 0 samples.
     """
 
-    def __init__(self, path: str, stage: str = 'train', transform: Any = None):
+    def __init__(self, path: str, stage: str = 'train', transform: Optional[Any] = None):
         self._dataset = fiftyone.Dataset.from_dir(
             dataset_dir=path,
             dataset_type=fiftyone.types.FiftyOneDataset,

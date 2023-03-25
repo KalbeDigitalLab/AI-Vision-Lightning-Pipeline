@@ -6,7 +6,9 @@ from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
 
-pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
+from src import utils
+
+pyrootutils.setup_root(__file__, indicator='.project-root', pythonpath=True)
 # ------------------------------------------------------------------------------------ #
 # the setup_root above is equivalent to:
 # - adding project root dir to PYTHONPATH
@@ -24,7 +26,6 @@ pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 # more info: https://github.com/ashleve/pyrootutils
 # ------------------------------------------------------------------------------------ #
 
-from src import utils
 
 log = utils.get_pylogger(__name__)
 
@@ -45,31 +46,31 @@ def evaluate(cfg: DictConfig) -> Tuple[dict, dict]:
 
     assert cfg.ckpt_path
 
-    log.info(f"Instantiating datamodule <{cfg.data._target_}>")
+    log.info(f'Instantiating datamodule <{cfg.data._target_}>')
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
 
-    log.info(f"Instantiating model <{cfg.model._target_}>")
+    log.info(f'Instantiating model <{cfg.model._target_}>')
     model: LightningModule = hydra.utils.instantiate(cfg.model)
 
-    log.info("Instantiating loggers...")
-    logger: List[Logger] = utils.instantiate_loggers(cfg.get("logger"))
+    log.info('Instantiating loggers...')
+    logger: List[Logger] = utils.instantiate_loggers(cfg.get('logger'))
 
-    log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
+    log.info(f'Instantiating trainer <{cfg.trainer._target_}>')
     trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
 
     object_dict = {
-        "cfg": cfg,
-        "datamodule": datamodule,
-        "model": model,
-        "logger": logger,
-        "trainer": trainer,
+        'cfg': cfg,
+        'datamodule': datamodule,
+        'model': model,
+        'logger': logger,
+        'trainer': trainer,
     }
 
     if logger:
-        log.info("Logging hyperparameters!")
+        log.info('Logging hyperparameters!')
         utils.log_hyperparameters(object_dict)
 
-    log.info("Starting testing!")
+    log.info('Starting testing!')
     trainer.test(model=model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
 
     # for predictions use trainer.predict(...)
@@ -80,7 +81,7 @@ def evaluate(cfg: DictConfig) -> Tuple[dict, dict]:
     return metric_dict, object_dict
 
 
-@hydra.main(version_base="1.3", config_path="../configs", config_name="eval.yaml")
+@hydra.main(version_base='1.3', config_path='../configs', config_name='eval.yaml')
 def main(cfg: DictConfig) -> None:
     # apply extra utilities
     # (e.g. ask for tags if none are provided in cfg, print cfg tree, etc.)
@@ -89,5 +90,5 @@ def main(cfg: DictConfig) -> None:
     evaluate(cfg)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

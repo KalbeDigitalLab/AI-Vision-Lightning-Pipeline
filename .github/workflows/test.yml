@@ -65,7 +65,11 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           wandb login --anonymously ${{ secrets.WANDB_TOKEN }}
-          pytest --cov src # NEEDS TO BE UPDATED WHEN CHANGING THE NAME OF "src" FOLDER
+          pytest --cov src
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: coverage.xml
+          fail_ci_if_error: true

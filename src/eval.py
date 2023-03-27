@@ -6,8 +6,6 @@ from lightning import LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
 
-from src import utils
-
 pyrootutils.setup_root(__file__, indicator='.project-root', pythonpath=True)
 # ------------------------------------------------------------------------------------ #
 # the setup_root above is equivalent to:
@@ -26,6 +24,7 @@ pyrootutils.setup_root(__file__, indicator='.project-root', pythonpath=True)
 # more info: https://github.com/ashleve/pyrootutils
 # ------------------------------------------------------------------------------------ #
 
+from src import utils  # noqa: E402
 
 log = utils.get_pylogger(__name__)
 

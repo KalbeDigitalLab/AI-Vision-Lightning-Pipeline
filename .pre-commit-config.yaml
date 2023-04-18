@@ -32,7 +32,8 @@ repos:
     hooks:
       - id: autopep8
         name: autopep8-unit-tests
-        args: ["-i", "--ignore=E226,E24,W50,W690,E402"]
+        args:
+          [--max-line-length, "110", "-i", "--ignore=E226,E24,W50,W690,E402"]
 
   # python import sorting
   - repo: https://github.com/PyCQA/isort
@@ -60,7 +61,17 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
-        args: ["--extend-ignore", "E402,E501", "--exclude", "logs/*,data/*"]
+        args:
+          [
+            "--max-line-length",
+            "110",
+            "--extend-ignore",
+            "E402,E501",
+            "--exclude",
+            "logs/*,data/*",
+            "--per-file-ignores",
+            "**/__init__.py:F401",
+          ]
 
   # python security linter
   - repo: https://github.com/PyCQA/bandit

@@ -68,7 +68,7 @@ repos:
             "--extend-ignore",
             "E402,E501",
             "--exclude",
-            "logs/*,data/*",
+            "logs/*,data/*,tests/*",
             "--per-file-ignores",
             "**/__init__.py:F401",
           ]

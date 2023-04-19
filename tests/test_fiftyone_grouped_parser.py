@@ -6,7 +6,7 @@ from src.data.components.fiftyone_mammography import FiftyOneVinDrMammography
 from tests.dummy_dataset import empty_dataset_dir, vindr_mammography_dataset_dir
 
 
-def test_load_dataset(vindr_mammography_dataset_dir):
+def test_vindrmammo_load_dataset(vindr_mammography_dataset_dir):
     fo_dataset = FiftyOneVinDrMammography(num_views=4, path=vindr_mammography_dataset_dir)
     assert len(fo_dataset) == 40
 
@@ -18,7 +18,7 @@ def test_load_dataset(vindr_mammography_dataset_dir):
     assert len(study_ids) == 4
 
 
-def test_dataset_transforms(vindr_mammography_dataset_dir):
+def test_vindrmammo_dataset_transforms(vindr_mammography_dataset_dir):
     augmentation = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((600, 500)),
@@ -38,7 +38,7 @@ def test_dataset_transforms(vindr_mammography_dataset_dir):
     assert len(study_ids) == 4
 
 
-def test_dataset_empty(empty_dataset_dir):
+def test_vindrmammo_dataset_empty(empty_dataset_dir):
     with pytest.raises(Exception) as e_info:
         _ = FiftyOneVinDrMammography(num_views=4, path=empty_dataset_dir)
         assert e_info == 'The dataset has 0 samples.'

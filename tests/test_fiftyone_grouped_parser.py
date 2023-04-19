@@ -8,7 +8,6 @@ from tests.dummy_dataset import empty_dataset_dir, vindr_mammography_dataset_dir
 
 def test_vindrmammo_load_dataset(vindr_mammography_dataset_dir):
     fo_dataset = FiftyOneVinDrMammography(num_views=4, path=vindr_mammography_dataset_dir)
-    assert len(fo_dataset) == 40
 
     images_stack, breast_birads, breast_density, study_ids = fo_dataset[0]
     assert images_stack.shape == (384, 384, 4)

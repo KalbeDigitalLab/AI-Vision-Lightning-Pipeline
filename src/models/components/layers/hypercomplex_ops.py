@@ -200,8 +200,7 @@ def hamilton_product(q0: torch.Tensor, q1: torch.Tensor) -> torch.Tensor:
 
 
 def kronecker_conv(input: torch.Tensor, r_weight: torch.Tensor, i_weight: torch.Tensor, j_weight: torch.Tensor, k_weight: torch.Tensor, bias: Optional[torch.Tensor] = None,
-                   stride: Union[int, Tuple] = 1, padding: Union[int, Tuple] = 0, groups: int = 1, dilatation: Union[int, Tuple] = 1, learn_A: bool = False, cuda: bool = True, first_layer: bool = False):  # ,
-    # mat1_learn, mat2_learn, mat3_learn, mat4_learn):
+                   stride: Union[int, Tuple] = 1, padding: Union[int, Tuple] = 0, groups: int = 1, dilatation: Union[int, Tuple] = 1, learn_A: bool = False, cuda: bool = True, first_layer: bool = False):
     """Applies a quaternion convolution using kronecker product."""
 
     # Define the initial matrices to build the Hamilton product

@@ -11,7 +11,7 @@
 # PARAMETERS INITIALIZATION
 #
 
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple
 
 import numpy as np
 import torch
@@ -219,7 +219,7 @@ def affect_init_conv(r_weight: torch.Tensor, i_weight: torch.Tensor, j_weight: t
     k_weight.data = k.type_as(k_weight.data)
 
 
-def get_kernel_and_weight_shape(operation: str, in_channels: int, out_channels: int, kernel_size: Union[int, Tuple]) -> Tuple:
+def get_kernel_and_weight_shape(operation: str, in_channels: int, out_channels: int, kernel_size: int) -> Tuple:
     """Get kernel and weight shapes."""
     if operation == 'convolution1d':
         if type(kernel_size) is not int:

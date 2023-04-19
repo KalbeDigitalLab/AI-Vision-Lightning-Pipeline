@@ -9,7 +9,28 @@ from src.data.components.fiftyone_parser import FiftyOneDatasetParser
 
 
 class FiftyOneVinDrMammography(FiftyOneDatasetParser):
-    # TODO: Docstring
+    """VinDrMammography Dataset Parser.
+
+    The dataset is stored using FiftyOneDataset format for easy visualization and integration.
+    Dataset source: https://physionet.org/content/vindr-mammo/1.0.0/
+    Dataset format: FiftyOne Dataset with grouping by view_side.
+                    A single group must have left_cc, left_mlo, right_cc, right_mlo.
+    Available annotations:
+        - Breast Density [A, B, C, D] -> [0, 1, 2, 3]
+        - Breast Birads [1, 2, 3, 4, 5] -> [0, 1] (Normal/bening, Malignant)
+        - Study ids
+
+    Parameters
+    ----------
+    num_views : int
+        Number of views for the dataset, either 2 or 4.
+    path : str
+        Path to dataset.
+    stage : str, optional
+        Stage to slice dataset and apply augmentation, by default 'train'.
+    transform : Optional[Any], optional
+        Transformation callback, by default None.
+    """
 
     def __init__(self, num_views: int, path: str, stage: str = 'train', transform: Optional[Any] = None):
         super().__init__(path, stage, transform)
@@ -22,14 +43,31 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
 
     @property
     def num_views(self):
-        # TODO: Docstring
+        """Get dataset number of views."""
         return self._num_views
 
-    def __getitem__(self, idx: int) -> Any:
-        # TODO: Docstring
+        """Get samples from dataset.
+
+        Given an index, get the samples from group index.
+
+        Parameters
+        ----------
+        idx : int
+            Requested group index
+
+        Returns
+        -------
+        Tuple
+            Tuple of images, breast_birads, breast_density, and study_ids
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
 
         # Get group and sort by left-right, cc-mlo
-        group = self._dataset.get_group(self._group_ids[idx].id)
+        group = self._dataset.get_group(self._group_ids[idx].id)  # noqa: F821
         sorted_keys = list(group.keys())
         sorted_keys.sort()
         group = {i: group[i] for i in sorted_keys}
@@ -52,6 +90,7 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
                              Expected {self._num_views}, got {len(images_stack)}')
         images_stack = np.stack(images_stack, axis=-1)
 
+        # Forcing to normal/bening or malignant
         breast_birads = [int(re.search(r'\d+', level).group()) for level in breast_birads]
         breast_birads = [0 if level < 3 else 1 for level in breast_birads]
 

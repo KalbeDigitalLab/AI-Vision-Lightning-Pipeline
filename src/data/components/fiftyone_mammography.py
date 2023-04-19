@@ -1,5 +1,5 @@
 import re
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -36,16 +36,16 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         super().__init__(path, stage, transform)
 
         self._num_views = num_views
-
         self._group_ids = []
         for sample in self._dataset:
             self._group_ids.append(sample.view_side)
 
     @property
-    def num_views(self):
+    def num_views(self) -> int:
         """Get dataset number of views."""
         return self._num_views
 
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, List, List, List]:
         """Get samples from dataset.
 
         Given an index, get the samples from group index.

@@ -33,8 +33,6 @@ class FiftyOneDatasetParser(Dataset):
             dataset_type=fiftyone.types.FiftyOneDataset,
         )
 
-        self._dataset = self._dataset.match_tags(stage)
-
         if len(self._dataset) == 0:
             raise ValueError('The dataset has 0 samples.')
 

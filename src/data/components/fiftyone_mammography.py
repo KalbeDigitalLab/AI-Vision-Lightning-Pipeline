@@ -35,6 +35,8 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
     def __init__(self, num_views: int, path: str, stage: str = 'train', transform: Optional[Any] = None):
         super().__init__(path, stage, transform)
 
+        self._dataset = self._dataset.match_tags(stage)
+
         self._num_views = num_views
         self._group_ids = []
         for sample in self._dataset:

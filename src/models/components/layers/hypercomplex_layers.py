@@ -498,15 +498,17 @@ class QuaternionConv(Module):
             self.register_parameter('bias', None)
         self.reset_parameters()
 
-    def reset_parameters(self):
-        hpc_ops.affect_init_conv(self.r_weight, self.i_weight, self.j_weight, self.k_weight,
-                                 self.kernel_size, self.winit, self.rng, self.init_criterion)
+    def reset_parameters(self) -> None:
+        """Reset the parameters using custom initialization."""
+        hpc_init.affect_init_conv(self.r_weight, self.i_weight, self.j_weight, self.k_weight,
+                                  self.kernel_size, self.winit, self.rng, self.init_criterion)
         if self.scale_param is not None:
             torch.nn.init.xavier_uniform_(self.scale_param.data)
         if self.bias is not None:
             self.bias.data.zero_()
 
-    def forward(self, input):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Compute the forward computation."""
         if self.rotation:
             return hpc_ops.quaternion_conv_rotation(input, self.zero_kernel, self.r_weight, self.i_weight, self.j_weight,
                                                     self.k_weight, self.bias, self.stride, self.padding, self.groups, self.dilatation,
@@ -516,6 +518,7 @@ class QuaternionConv(Module):
                                            self.k_weight, self.bias, self.stride, self.padding, self.groups, self.dilatation)
 
     def __repr__(self):
+        """Get str format of layer parameters."""
         return self.__class__.__name__ + '(' \
             + 'in_channels=' + str(self.in_channels) \
             + ', out_channels=' + str(self.out_channels) \

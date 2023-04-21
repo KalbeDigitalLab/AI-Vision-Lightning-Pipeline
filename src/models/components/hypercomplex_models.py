@@ -172,7 +172,8 @@ class PHYSBOnet(nn.Module):
             out_sx = self.classifier_sx(out)
             out_dx = self.classifier_dx(out)
 
-        out = torch.cat([out_sx, out_dx], dim=0)
+        # * NOTE: Stack in new dimension (batch, 2, 2) instead of concat (batch, 4)
+        out = torch.stack([out_sx, out_dx], dim=1)
         return out
 
 
@@ -235,7 +236,8 @@ class PHYSEnet(nn.Module):
             out_sx = self.classifier_sx(out_enc_sx)
             out_dx = self.classifier_dx(out_enc_dx)
 
-        out = torch.cat([out_sx, out_dx], dim=0)
+        # * NOTE: Stack in new dimension (batch, 2, 2) instead of concat (batch, 4)
+        out = torch.stack([out_sx, out_dx], dim=1)
 
         if self.visualize:
             return out, out_enc_sx, out_enc_dx, act_sx, act_dx

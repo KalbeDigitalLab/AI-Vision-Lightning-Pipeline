@@ -8,249 +8,6 @@ from src.models.components.layers import hypercomplex_layers as hpc_layer
 from src.models.components.utils import utils as m_utils
 
 
-class ResidualBlock(nn.Module):
-    """Residual PH Convolution Block.
-
-    Source: https://github.com/ispamm/PHBreast/blob/main/models/phc_models.py#L15
-    Reference:
-    - arxiv.org/abs/1512.03385
-    - arxiv.org/abs/2204.05798
-
-    Parameters
-    ----------
-    in_planes : int
-        Input feature size
-    planes : int
-        Output feature size
-    stride : int, optional
-        Convolution stride size, by default 1
-    n : int, optional
-        Number of dimensions, by default 4
-    """
-    expansion = 1
-
-    def __init__(self, in_planes: int, planes: int, stride: int = 1, n: int = 4):
-        super().__init__()
-        self.conv1 = hpc_layer.PHConv(n,
-                                      in_planes, planes, kernel_size=3, stride=stride, padding=1)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = hpc_layer.PHConv(n, planes, planes, kernel_size=3,
-                                      stride=1, padding=1)
-        self.bn2 = nn.BatchNorm2d(planes)
-
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
-            self.shortcut = nn.Sequential(
-                hpc_layer.PHConv(n, in_planes, self.expansion*planes,
-                                 kernel_size=1, stride=stride,),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Compute the forward computation."""
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
-        out = F.relu(out)
-        return out
-
-
-class Bottleneck(nn.Module):
-    """Bottleneck PH Convolution Block.
-
-    Source: https://github.com/ispamm/PHBreast/blob/main/models/phc_models.py#L43
-    Reference:
-    - arxiv.org/abs/1512.03385
-    - arxiv.org/abs/2204.05798
-
-    Parameters
-    ----------
-    in_planes : int
-        Input feature size
-    planes : int
-        Output feature size
-    stride : int, optional
-        Convolution stride size, by default 1
-    n : int, optional
-        Number of dimensions, by default 4
-    """
-    expansion = 2
-
-    def __init__(self, in_planes: int, planes: int, stride: int = 1, n: int = 4):
-        super().__init__()
-        self.conv1 = hpc_layer.PHConv(n, in_planes, planes, kernel_size=1, stride=1)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = hpc_layer.PHConv(n, planes, planes, kernel_size=3,
-                                      stride=stride, padding=1)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = hpc_layer.PHConv(n, planes, self.expansion * planes, kernel_size=1, stride=1)
-        self.bn3 = nn.BatchNorm2d(self.expansion*planes)
-
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
-            self.shortcut = nn.Sequential(
-                hpc_layer.PHConv(n, in_planes, self.expansion*planes,
-                                 kernel_size=1, stride=stride),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Compute the forward computation."""
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = F.relu(self.bn2(self.conv2(out)))
-        out = self.bn3(self.conv3(out))
-        out += self.shortcut(x)
-        out = F.relu(out)
-        return out
-
-
-class Encoder(nn.Module):
-    """Encoder Block for Feature Extraction.
-
-    This block has been designed to produce 128 feature planes.
-    This block is part of PHYSBONet.
-
-    Source: https://github.com/ispamm/PHBreast/blob/main/models/phc_models.py#L150
-    Reference:
-    - arxiv.org/abs/2204.05798
-
-    Parameters
-    ----------
-    channels : int
-        Input feature size
-    n : int
-        Number of dimensions
-    """
-
-    def __init__(self, channels: int, n: int):
-        super().__init__()
-        self.in_planes = 64
-
-        self.conv1 = hpc_layer.PHConv(n, channels, 64, kernel_size=3, stride=1, padding=1)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.layer1 = self._make_layer(ResidualBlock, 64, 2, stride=1, n=n)
-        self.layer2 = self._make_layer(ResidualBlock, 128, 2, stride=2, n=n)
-
-    def _make_layer(self, block: Callable, planes: int, num_blocks: int, stride: int, n: int):
-        """Create sequential layer of Residual Blocks."""
-        strides = [stride] + [1]*(num_blocks-1)
-        layers = []
-        for stride in strides:
-            layers.append(block(self.in_planes, planes, stride, n))
-            self.in_planes = planes * block.expansion
-        return nn.Sequential(*layers)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Compute the forward computation."""
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.layer1(out)
-        out = self.layer2(out)
-        return out
-
-
-class SharedBottleneck(nn.Module):
-    """SharedBottleneck Block for feature fusion.
-
-    This block has been designed to produce 512 feature planes.
-    This block is part of PHYSBONet.
-
-    Source: https://github.com/ispamm/PHBreast/blob/main/models/phc_models.py#L178
-    Reference:
-    - arxiv.org/abs/2204.05798
-
-    Parameters
-    ----------
-    channels : int
-        Input feature size
-    n : int
-        Number of dimensions
-    """
-
-    def __init__(self, n, in_planes):
-        super().__init__()
-        self.in_planes = in_planes
-
-        self.layer3 = self._make_layer(ResidualBlock, 256, 2, stride=2, n=n)
-        self.layer4 = self._make_layer(ResidualBlock, 512, 2, stride=2, n=n)
-        self.layer5 = self._make_layer(Bottleneck, 512, 2, stride=2, n=n)
-        self.layer6 = self._make_layer(Bottleneck, 512, 2, stride=2, n=n)
-
-    def _make_layer(self, block: Callable, planes: int, num_blocks: int, stride: int, n: int):
-        """Create sequential layer of Residual and Bottleneck Blocks."""
-        strides = [stride] + [1]*(num_blocks-1)
-        layers = []
-        for stride in strides:
-            layers.append(block(self.in_planes, planes, stride, n))
-            self.in_planes = planes * block.expansion
-        return nn.Sequential(*layers)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Compute the forward computation."""
-        out = self.layer3(x)
-        out = self.layer4(out)
-        out = self.layer5(out)
-        out = self.layer6(out)
-        n, c, _, _ = out.size()
-        out = out.view(n, c, -1).mean(-1)
-        return out
-
-
-class Classifier(nn.Module):
-    """Refined Classifier Block.
-
-    This block will use a deeper / refined Bottleneck layers
-    before parsing it to a Linear Layer.
-
-    Source: https://github.com/ispamm/PHBreast/blob/main/models/phc_models.py#L209
-    Reference:
-    - arxiv.org/abs/2204.05798
-
-    Parameters
-    ----------
-    n : int
-        Number of dimensions
-    num_classes : int
-        Number of output classes
-    in_planes : int, optional
-        Input feature size, by default 512
-    visualize : bool, optional
-        Return the activation maps before linear layer, by default False
-    """
-
-    def __init__(self, n: int, num_classes: int, in_planes=512, visualize=False):
-        super().__init__()
-        self.in_planes = in_planes
-        self.visualize = visualize
-
-        # Refiner blocks
-        self.layer5 = self._make_layer(Bottleneck, 512, 2, stride=2, n=n)
-        self.layer6 = self._make_layer(Bottleneck, 512, 2, stride=2, n=n)
-        self.linear = nn.Linear(1024, num_classes)
-
-    def _make_layer(self, block: Callable, planes: int, num_blocks: int, stride: int, n: int):
-        """Create sequential layer of Bottleneck Blocks."""
-        strides = [stride] + [1]*(num_blocks-1)
-        layers = []
-        for stride in strides:
-            layers.append(block(self.in_planes, planes, stride, n))
-            self.in_planes = planes * block.expansion
-        return nn.Sequential(*layers)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Compute the forward computation."""
-        out = self.layer5(x)
-        feature_maps = self.layer6(out)
-
-        n, c, _, _ = feature_maps.size()
-        out = feature_maps.view(n, c, -1).mean(-1)
-        out = self.linear(out)
-
-        if self.visualize:
-            return out, feature_maps
-
-        return out
-
-
 class PHCResNet(nn.Module):
     """Parameterized Hypercomplex Residual Network.
 
@@ -306,8 +63,8 @@ class PHCResNet(nn.Module):
 
     def add_top_blocks(self, num_classes=1):
         """Add refiner blocks before final linear layer."""
-        self.layer5 = self._make_layer(Bottleneck, 512, 2, stride=2, n=self.n)
-        self.layer6 = self._make_layer(Bottleneck, 512, 2, stride=2, n=self.n)
+        self.layer5 = self._make_layer(hpc_layer.Bottleneck, 512, 2, stride=2, n=self.n)
+        self.layer6 = self._make_layer(hpc_layer.Bottleneck, 512, 2, stride=2, n=self.n)
 
         if not self.before_gap_out and not self.gap_output:
             self.linear = nn.Linear(1024, num_classes)
@@ -381,10 +138,10 @@ class PHYSBOnet(nn.Module):
 
         self.shared = shared
 
-        self.encoder_sx = Encoder(channels=2, n=2)
-        self.encoder_dx = Encoder(channels=2, n=2)
+        self.encoder_sx = hpc_layer.Encoder(channels=2, n=2)
+        self.encoder_dx = hpc_layer.Encoder(channels=2, n=2)
 
-        self.shared_resnet = SharedBottleneck(n, in_planes=128 if shared else 256)
+        self.shared_resnet = hpc_layer.SharedBottleneck(n, in_planes=128 if shared else 256)
 
         if weights:
             m_utils.load_weights(self.encoder_sx, weights)
@@ -454,8 +211,8 @@ class PHYSEnet(nn.Module):
             print('Loading weights for phcresnet18 from ', weights)
             m_utils.load_weights(self.phcresnet18, weights)
 
-        self.classifier_sx = Classifier(n, num_classes, visualize=visualize)
-        self.classifier_dx = Classifier(n, num_classes, visualize=visualize)
+        self.classifier_sx = hpc_layer.Classifier(n, num_classes, visualize=visualize)
+        self.classifier_dx = hpc_layer.Classifier(n, num_classes, visualize=visualize)
 
         if not patch_weights and weights:
             print('Loading weights for classifiers from ', weights)
@@ -488,7 +245,7 @@ class PHYSEnet(nn.Module):
 
 def PHCResNet18(channels=4, n=4, num_classes=10, before_gap_output=False, gap_output=False, visualize=False):
     """Default constructor for PHCResnet-18."""
-    return PHCResNet(ResidualBlock,
+    return PHCResNet(hpc_layer.ResidualBlock,
                      [2, 2, 2, 2],
                      channels=channels,
                      n=n,
@@ -498,6 +255,13 @@ def PHCResNet18(channels=4, n=4, num_classes=10, before_gap_output=False, gap_ou
                      visualize=visualize)
 
 
-def PHCResNet50(channels=4, n=4, num_classes=10):
+def PHCResNet50(channels=4, n=4, num_classes=10, before_gap_output=False, gap_output=False, visualize=False):
     """Default constructor for PHCResnet-50."""
-    return PHCResNet(Bottleneck, [3, 4, 6, 3], channels=channels, n=n, num_classes=num_classes)
+    return PHCResNet(hpc_layer.Bottleneck,
+                     [3, 4, 6, 3],
+                     channels=channels,
+                     n=n,
+                     num_classes=num_classes,
+                     before_gap_output=before_gap_output,
+                     gap_output=gap_output,
+                     visualize=visualize)

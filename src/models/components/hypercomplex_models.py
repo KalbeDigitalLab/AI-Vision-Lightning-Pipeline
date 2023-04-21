@@ -89,13 +89,15 @@ class PHCResNet(nn.Module):
         if self.before_gap_out:
             return out4
 
+        out5, out6 = None, None
         if self.layer5:
             out5 = self.layer5(out4)
             out6 = self.layer6(out5)
 
         # global average pooling (GAP)
-        n, c, _, _ = out6.size()
-        out = out6.view(n, c, -1).mean(-1)
+        out = out6 if self.layer5 is not None else out4
+        n, c, _, _ = out.size()
+        out = out.view(n, c, -1).mean(-1)
 
         if self.gap_output:
             return out
@@ -206,6 +208,8 @@ class PHYSEnet(nn.Module):
     def __init__(self, n=2, num_classes=1, weights=None, patch_weights=True, visualize=False):
         super().__init__()
         self.visualize = visualize
+        if n != 2:
+            raise ValueError(f'Number of dimension (n) must be 2, get n as: {n}')
         self.phcresnet18 = PHCResNet18(n=2, num_classes=num_classes, channels=2, before_gap_output=True)
 
         if weights:

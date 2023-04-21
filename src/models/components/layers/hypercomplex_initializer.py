@@ -11,7 +11,7 @@
 # PARAMETERS INITIALIZATION
 #
 
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -156,7 +156,7 @@ def quaternion_init(in_features: int, out_features: int, rng: np.random.RandomSt
     return (weight_r, weight_i, weight_j, weight_k)
 
 
-def create_dropout_mask(dropout_p: float, size: Optional[int, Tuple], rng: np.random.RandomState, as_type: Any, operation: str = 'linear'):
+def create_dropout_mask(dropout_p: float, size: Union[int, Tuple], rng: np.random.RandomState, as_type: Any, operation: str = 'linear'):
     """Create dropout mask for Linear Quaterion Tensor."""
     if operation == 'linear':
         mask = rng.binomial(n=1, p=1-dropout_p, size=size)

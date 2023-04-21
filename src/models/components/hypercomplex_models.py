@@ -37,7 +37,7 @@ class PHCResNet(nn.Module):
         Return the final output and activation maps at two different levels, by default False
     """
 
-    def __init__(self, block: Callable, num_blocks: List[int, int, int, int], channels=4, n=4, num_classes=10, before_gap_output=False, gap_output=False, visualize=False):
+    def __init__(self, block: Callable, num_blocks: List[int], channels=4, n=4, num_classes=10, before_gap_output=False, gap_output=False, visualize=False):
         super().__init__()
         self.block = block
         self.num_blocks = num_blocks

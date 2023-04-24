@@ -99,6 +99,9 @@ class PHMLinear(nn.Module):
 class PHConv(Module):
     """Parametrized Hypercomplex Convolution Layer.
 
+    Source: https://github.com/eleGAN23/HyperNets/blob/main/layers/ph_layers.py
+    Reference: arxiv.org/pdf/2110.04176
+
     Parameters
     ----------
     n : int
@@ -113,25 +116,27 @@ class PHConv(Module):
         Convolution padding size, by default 0
     stride : int, optional
         Convolution stride size, by default 1
-    cuda: bool
-        Use cuda to optimize computation
     """
 
-    def __init__(self, n, in_features: int, out_features: int, kernel_size: int, padding: int = 0, stride: int = 1, cuda: bool = True):
+    def __init__(self, n, in_features: int, out_features: int, kernel_size: int, padding: int = 0, stride: int = 1):
         super().__init__()
         self.n = n
         self.in_features = in_features
         self.out_features = out_features
         self.padding = padding
         self.stride = stride
-        self.cuda = cuda
+        self.kernel_size = kernel_size
+
+        if (in_features % n > 0):
+            raise ValueError(f'Input features: {in_features} is not divisible by n-{n}')
+        if (out_features % n > 0):
+            raise ValueError(f'Output features: {out_features} is not divisible by n-{n}')
 
         self.bias = nn.Parameter(torch.Tensor(out_features))
         self.A = nn.Parameter(torch.nn.init.xavier_uniform_(torch.zeros((n, n, n))))
         self.F = nn.Parameter(torch.nn.init.xavier_uniform_(
-            torch.zeros((n, self.out_features//n, self.in_features//n, kernel_size, kernel_size))))
-        self.weight = torch.zeros((self.out_features, self.in_features))
-        self.kernel_size = kernel_size
+            torch.zeros((n, self.in_features//n, self.out_features//n, kernel_size, kernel_size))))
+        self.weight = torch.zeros((self.in_features, self.out_features, self.kernel_size, self.kernel_size))
 
         fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
@@ -153,15 +158,12 @@ class PHConv(Module):
         """
         H = torch.zeros((self.out_features, self.in_features, self.kernel_size, self.kernel_size))
         for i in range(self.n):
-            kron_prod = torch.kron(self.A[i], self.F[i]).view(
-                self.out_features, self.in_features, self.kernel_size, self.kernel_size)
-            H = H + kron_prod
+            H += torch.kron(self.A[i].unsqueeze(-1).unsqueeze(-1), self.F[i])
         return H
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Compute the forward computation."""
-        self.weight = torch.sum(self.kronecker_product1(self.A, self.F), dim=0)
-
+        self.weight = self.kronecker_product2()
         input = input.type(dtype=self.weight.type())
 
         return F.conv2d(input, weight=self.weight, stride=self.stride, padding=self.padding)
@@ -175,7 +177,7 @@ class PHConv(Module):
         """Reset the parameters using kaiming uniform."""
         init.kaiming_uniform_(self.A, a=math.sqrt(5))
         init.kaiming_uniform_(self.F, a=math.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.placeholder)
+        fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
         init.uniform_(self.bias, -bound, bound)
 

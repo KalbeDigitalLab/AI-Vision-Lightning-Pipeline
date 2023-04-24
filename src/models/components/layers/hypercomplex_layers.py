@@ -31,8 +31,13 @@ class PHMLinear(nn.Module):
         Input feature size
     out_features : int
         Output feature size
-    cuda: bool
-        Use cuda to optimize computation
+
+    Raises
+    ------
+    ValueError
+        If number of input features is not divisible by n
+    ValueError
+        If number of output features is not divisible by n
     """
 
     def __init__(self, n: int, in_features: int, out_features: int):
@@ -54,7 +59,6 @@ class PHMLinear(nn.Module):
             torch.zeros((n, self.out_features//n, self.in_features//n))))
 
         self.weight = torch.zeros((self.out_features, self.in_features))
-        self.weight = self.kronecker_product2()
 
         fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
@@ -75,11 +79,12 @@ class PHMLinear(nn.Module):
         """Compute the kronecker products between 2 tensors."""
         H = torch.zeros((self.out_features, self.in_features))
         for i in range(self.n):
-            H = H + torch.kron(self.A[i], self.S[i])
+            H += torch.kron(self.A[i], self.S[i])
         return H
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Compute the forward computation."""
+        self.weight = self.kronecker_product2()
         return F.linear(input, weight=self.weight, bias=self.bias)
 
     def extra_repr(self) -> str:
@@ -91,7 +96,7 @@ class PHMLinear(nn.Module):
         """Reset the parameters using kaiming uniform."""
         init.kaiming_uniform_(self.A, a=math.sqrt(5))
         init.kaiming_uniform_(self.S, a=math.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.placeholder)
+        fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
         init.uniform_(self.bias, -bound, bound)
 
@@ -116,6 +121,13 @@ class PHConv(Module):
         Convolution padding size, by default 0
     stride : int, optional
         Convolution stride size, by default 1
+
+    Raises
+    ------
+    ValueError
+        If number of input features is not divisible by n
+    ValueError
+        If number of output features is not divisible by n
     """
 
     def __init__(self, n, in_features: int, out_features: int, kernel_size: int, padding: int = 0, stride: int = 1):
@@ -143,7 +155,10 @@ class PHConv(Module):
         init.uniform_(self.bias, -bound, bound)
 
     def kronecker_product1(self, A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
-        """Compute the kronecker products between 2 tensors."""
+        """Compute the kronecker products between 2 tensors.
+
+        # ! Slow computation
+        """
         siz1 = torch.Size(torch.tensor(A.shape[-2:]) * torch.tensor(F.shape[-4:-2]))
         siz2 = torch.Size(torch.tensor(F.shape[-2:]))
         res = A.unsqueeze(-1).unsqueeze(-3).unsqueeze(-1).unsqueeze(-1) * F.unsqueeze(-4).unsqueeze(-6)
@@ -152,10 +167,7 @@ class PHConv(Module):
         return out
 
     def kronecker_product2(self) -> torch.Tensor:
-        """Compute the kronecker products between 2 tensors.
-
-        # ! Slow computation
-        """
+        """Compute the kronecker products between 2 tensors."""
         H = torch.zeros((self.out_features, self.in_features, self.kernel_size, self.kernel_size))
         for i in range(self.n):
             H += torch.kron(self.A[i].unsqueeze(-1).unsqueeze(-1), self.F[i])
@@ -223,6 +235,13 @@ class KroneckerConv(Module):
         Use cuda to optimize computation
     first_layer : bool, optional
         Flag to build the Hamilton product on first layer, by default False
+
+    Raises
+    ------
+    ValueError
+        If number of input channels is not divisible by n
+    ValueError
+        If number of output channels is not divisible by n
     """
 
     def __init__(self, in_channels, out_channels, kernel_size, stride,
@@ -230,6 +249,11 @@ class KroneckerConv(Module):
                  weight_init='quaternion', seed=None, operation='convolution2d', rotation=False,
                  quaternion_format=True, scale=False, learn_A=False, cuda=True, first_layer=False):
         super().__init__()
+
+        if (in_channels % 4 > 0):
+            raise ValueError(f'Input channels: {in_channels} is not divisible by n-{4}')
+        if (out_channels % 4 > 0):
+            raise ValueError(f'Output channels: {out_channels} is not divisible by n-{4}')
 
         self.in_channels = in_channels // 4
         self.out_channels = out_channels // 4
@@ -288,7 +312,7 @@ class KroneckerConv(Module):
             # return quaternion_conv_rotation(input, self.zero_kernel, self.r_weight, self.i_weight, self.j_weight,
             #     self.k_weight, self.bias, self.stride, self.padding, self.groups, self.dilatation,
             #     self.quaternion_format, self.scale_param)
-            pass
+            raise NotImplementedError('Rotation is not supported by Kronecker Convolution')
         else:
             return hpc_ops.kronecker_conv(input, self.r_weight, self.i_weight, self.j_weight,
                                           self.k_weight, self.bias, self.stride, self.padding, self.groups, self.dilatation, self.learn_A, self.cuda, self.first_layer)
@@ -345,6 +369,13 @@ class QuaternionTransposeConv(Module):
         Enable quaternion rotation, by default False
     quaternion_format : bool, optional
         Return in quaternion format, by default True
+
+    Raises
+    ------
+    ValueError
+        If number of input channels is not divisible by n
+    ValueError
+        If number of output channels is not divisible by n
     """
 
     def __init__(self, in_channels, out_channels, kernel_size, stride,
@@ -352,6 +383,11 @@ class QuaternionTransposeConv(Module):
                  weight_init='quaternion', seed=None, operation='convolution2d', rotation=False,
                  quaternion_format=False):
         super().__init__()
+
+        if (in_channels % 4 > 0):
+            raise ValueError(f'Input channels: {in_channels} is not divisible by n-{4}')
+        if (out_channels % 4 > 0):
+            raise ValueError(f'Output channels: {out_channels} is not divisible by n-{4}')
 
         self.in_channels = in_channels // 4
         self.out_channels = out_channels // 4
@@ -454,12 +490,24 @@ class QuaternionConv(Module):
         Return in quaternion format, by default True
     scale : bool, optional
         Enable quaternoin scaling, by default False
+
+    Raises
+    ------
+    ValueError
+        If number of input channels is not divisible by n
+    ValueError
+        If number of output channels is not divisible by n
     """
 
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int, stride: int,
                  dilatation: int = 1, padding: int = 0, groups: int = 1, bias: bool = True, init_criterion: str = 'glorot',
                  weight_init: str = 'quaternion', seed: Optional[str] = None, operation: str = 'convolution2d', rotation: bool = False, quaternion_format: bool = True, scale: bool = False):
         super().__init__()
+
+        if (in_channels % 4 > 0):
+            raise ValueError(f'Input channels: {in_channels} is not divisible by n-{4}')
+        if (out_channels % 4 > 0):
+            raise ValueError(f'Output channels: {out_channels} is not divisible by n-{4}')
 
         self.in_channels = in_channels // 4
         self.out_channels = out_channels // 4
@@ -562,12 +610,25 @@ class QuaternionLinearAutograd(Module):
         Return in quaternion format, by default True
     scale : bool, optional
         Enable quaternoin scaling, by default False
+
+    Raises
+    ------
+    ValueError
+        If number of input features is not divisible by n
+    ValueError
+        If number of output features is not divisible by n
     """
 
     def __init__(self, in_features, out_features, bias=True,
                  init_criterion='glorot', weight_init='quaternion',
                  seed=None, rotation=False, quaternion_format=True, scale=False):
         super().__init__()
+
+        if (in_features % 4 > 0):
+            raise ValueError(f'Input features: {in_features} is not divisible by n-{4}')
+        if (out_features % 4 > 0):
+            raise ValueError(f'Output features: {out_features} is not divisible by n-{4}')
+
         self.in_features = in_features//4
         self.out_features = out_features//4
         self.rotation = rotation
@@ -643,12 +704,25 @@ class QuaternionLinear(Module):
         Weight initialization function type, by default 'quaternion'
     seed : int, optional
         Seed number for Random generator, by default None
+
+    Raises
+    ------
+    ValueError
+        If number of input features is not divisible by n
+    ValueError
+        If number of output features is not divisible by n
     """
 
     def __init__(self, in_features: int, out_features: int, bias: bool = True,
                  init_criterion: str = 'he', weight_init: str = 'quaternion',
                  seed: Optional[int] = None):
         super().__init__()
+
+        if (in_features % 4 > 0):
+            raise ValueError(f'Input features: {in_features} is not divisible by n-{4}')
+        if (out_features % 4 > 0):
+            raise ValueError(f'Output features: {out_features} is not divisible by n-{4}')
+
         self.in_features = in_features//4
         self.out_features = out_features//4
         self.r_weight = Parameter(torch.Tensor(self.in_features, self.out_features))

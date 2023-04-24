@@ -44,7 +44,7 @@ class PHMLinear(nn.Module):
         if (in_features % n > 0):
             raise ValueError(f'Input features: {in_features} is not divisible by n-{n}')
         if (out_features % n > 0):
-            raise ValueError(f'Input features: {out_features} is not divisible by n-{n}')
+            raise ValueError(f'Output features: {out_features} is not divisible by n-{n}')
 
         self.bias = nn.Parameter(torch.Tensor(out_features))
 
@@ -152,8 +152,6 @@ class PHConv(Module):
         # ! Slow computation
         """
         H = torch.zeros((self.out_features, self.in_features, self.kernel_size, self.kernel_size))
-        if self.cuda:
-            H = H.cuda()
         for i in range(self.n):
             kron_prod = torch.kron(self.A[i], self.F[i]).view(
                 self.out_features, self.in_features, self.kernel_size, self.kernel_size)

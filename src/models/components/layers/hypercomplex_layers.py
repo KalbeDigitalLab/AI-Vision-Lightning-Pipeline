@@ -147,8 +147,8 @@ class PHConv(Module):
         self.bias = nn.Parameter(torch.Tensor(out_features))
         self.A = nn.Parameter(torch.nn.init.xavier_uniform_(torch.zeros((n, n, n))))
         self.F = nn.Parameter(torch.nn.init.xavier_uniform_(
-            torch.zeros((n, self.in_features//n, self.out_features//n, kernel_size, kernel_size))))
-        self.weight = torch.zeros((self.in_features, self.out_features, self.kernel_size, self.kernel_size))
+            torch.zeros((n, self.out_features//n, self.in_features//n, kernel_size, kernel_size))))
+        self.weight = torch.zeros((self.out_features, self.in_features, self.kernel_size, self.kernel_size))
 
         fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)

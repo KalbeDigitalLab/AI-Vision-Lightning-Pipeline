@@ -54,13 +54,17 @@ class PHMLinear(nn.Module):
             torch.zeros((n, self.out_features//n, self.in_features//n))))
 
         self.weight = torch.zeros((self.out_features, self.in_features))
+        self.weight = self.kronecker_product2()
 
         fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
         init.uniform_(self.bias, -bound, bound)
 
     def kronecker_product1(self, a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
-        """Compute the kronecker products between 2 tensors."""
+        """Compute the kronecker products between 2 tensors.
+
+        # ! Slow computation
+        """
         siz1 = torch.Size(torch.tensor(a.shape[-2:]) * torch.tensor(b.shape[-2:]))
         res = a.unsqueeze(-1).unsqueeze(-3) * b.unsqueeze(-2).unsqueeze(-4)
         siz0 = res.shape[:-4]
@@ -68,20 +72,14 @@ class PHMLinear(nn.Module):
         return out
 
     def kronecker_product2(self) -> torch.Tensor:
-        """Compute the kronecker products between 2 tensors.
-
-        # ! Slow computation
-        """
+        """Compute the kronecker products between 2 tensors."""
         H = torch.zeros((self.out_features, self.in_features))
-        if self.cuda:
-            H = H.cuda()
         for i in range(self.n):
             H = H + torch.kron(self.A[i], self.S[i])
         return H
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Compute the forward computation."""
-        self.weight = torch.sum(self.kronecker_product1(self.A, self.S), dim=0)
         return F.linear(input, weight=self.weight, bias=self.bias)
 
     def extra_repr(self) -> str:

@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 
-def check_input(input: torch.Tensor):
+def check_input(input: torch.Tensor) -> None:
     """Check input dimension before use.
 
     Parameters

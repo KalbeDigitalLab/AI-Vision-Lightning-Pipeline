@@ -20,13 +20,6 @@ def timeit(func):
     return timeit_wrapper
 
 
-def tensor_data():
-    return [
-        torch.zeros((100, 100)),
-        torch.ones((100, 100)),
-    ]
-
-
 @timeit
 def linear_kronecker_product1(mat_a: torch.Tensor, mat_s: torch.Tensor):
     siz1 = torch.Size(torch.tensor(mat_a.shape[-2:]) * torch.tensor(mat_s.shape[-2:]))

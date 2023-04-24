@@ -32,13 +32,13 @@ def test_run_valid_check_input():
 ])
 def test_run_get_r(input):
     if input.dim() == 2:
-        return input.narrow(1, 0, 25)
+        result = input.narrow(1, 0, 25)
     if input.dim() == 3:
-        return input.narrow(2, 0, 25)
+        result = input.narrow(2, 0, 25)
     if input.dim() >= 4:
-        return input.narrow(1, 0, 25)
+        result = input.narrow(1, 0, 25)
     output = hpc_ops.get_r(input)
-    assert torch.allclose(input, output)
+    assert torch.allclose(output, result)
 
 
 @pytest.mark.parametrize('input', [
@@ -49,13 +49,13 @@ def test_run_get_r(input):
 ])
 def test_run_get_i(input):
     if input.dim() == 2:
-        return input.narrow(1, 25, 25)
+        result = input.narrow(1, 25, 25)
     if input.dim() == 3:
-        return input.narrow(2, 25, 25)
+        result = input.narrow(2, 25, 25)
     if input.dim() >= 4:
-        return input.narrow(1, 25, 25)
+        result = input.narrow(1, 25, 25)
     output = hpc_ops.get_i(input)
-    assert torch.allclose(input, output)
+    assert torch.allclose(output, result)
 
 
 @pytest.mark.parametrize('input', [
@@ -66,13 +66,13 @@ def test_run_get_i(input):
 ])
 def test_run_get_j(input):
     if input.dim() == 2:
-        return input.narrow(1, 50, 25)
+        result = input.narrow(1, 50, 25)
     if input.dim() == 3:
-        return input.narrow(2, 50, 25)
+        result = input.narrow(2, 50, 25)
     if input.dim() >= 4:
-        return input.narrow(1, 50, 25)
+        result = input.narrow(1, 50, 25)
     output = hpc_ops.get_j(input)
-    assert torch.allclose(input, output)
+    assert torch.allclose(output, result)
 
 
 @pytest.mark.parametrize('input', [
@@ -83,10 +83,10 @@ def test_run_get_j(input):
 ])
 def test_run_get_k(input):
     if input.dim() == 2:
-        return input.narrow(1, 75, 25)
+        result = input.narrow(1, 75, 25)
     if input.dim() == 3:
-        return input.narrow(2, 75, 25)
+        result = input.narrow(2, 75, 25)
     if input.dim() >= 4:
-        return input.narrow(1, 75, 25)
+        result = input.narrow(1, 75, 25)
     output = hpc_ops.get_k(input)
-    assert torch.allclose(input, output)
+    assert torch.allclose(output, result)

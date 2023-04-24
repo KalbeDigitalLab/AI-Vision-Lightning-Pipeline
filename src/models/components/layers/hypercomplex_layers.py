@@ -35,12 +35,16 @@ class PHMLinear(nn.Module):
         Use cuda to optimize computation
     """
 
-    def __init__(self, n: int, in_features: int, out_features: int, cuda: bool = True):
+    def __init__(self, n: int, in_features: int, out_features: int):
         super().__init__()
         self.n = n
         self.in_features = in_features
         self.out_features = out_features
-        self.cuda = cuda
+
+        if (in_features % n > 0):
+            raise ValueError(f'Input features: {in_features} is not divisible by n-{n}')
+        if (out_features % n > 0):
+            raise ValueError(f'Input features: {out_features} is not divisible by n-{n}')
 
         self.bias = nn.Parameter(torch.Tensor(out_features))
 

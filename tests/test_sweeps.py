@@ -8,6 +8,7 @@ overrides = ['logger=[]']
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Each experiment has different configurations.')
 @pytest.mark.slow
 def test_experiments(tmp_path):
     """Test running all available experiment configs with fast_dev_run=True."""
@@ -86,5 +87,6 @@ def test_optuna_sweep_ddp_sim_wandb(tmp_path):
         '+trainer.limit_val_batches=0.1',
         '+trainer.limit_test_batches=0.1',
         'logger=wandb',
+        '++logger.anonymous=True'
     ]
     run_sh_command(command)

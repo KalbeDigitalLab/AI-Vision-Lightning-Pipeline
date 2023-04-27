@@ -110,10 +110,16 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
 
         # Forcing to normal/bening or malignant
         breast_birads = [int(re.search(r'\d+', level).group()) for level in breast_birads]
-        breast_birads = [0 if level < 3 else 1 for level in breast_birads]
+        breast_birads = list({0 if level < 3 else 1 for level in breast_birads})
+        if len(breast_birads) != 1:
+            raise RuntimeError(
+                f'The breast birads is not unique for the given group. This group has {breast_birads}')
 
         breast_density = [level.split(' ')[1] for level in breast_density]
-        breast_density = [['A', 'B', 'C', 'D'].index(level) for level in breast_density]
+        breast_density = list({['A', 'B', 'C', 'D'].index(level) for level in breast_density})
+        if len(breast_density) != 1:
+            raise RuntimeError(
+                f'The breast density is not unique for the given group. This group has {breast_density}')
 
         if self._transform is not None:
             images_stack = self._transform(images_stack)
@@ -122,4 +128,10 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
             images_stack = torch.from_numpy(images_stack).to(torch.float32)
             images_stack /= 255
 
-        return images_stack, breast_birads, breast_density, study_ids
+        return images_stack, torch.tensor(breast_birads, dtype=torch.int64), torch.tensor(breast_density, dtype=torch.int64), study_ids
+
+    @staticmethod
+    def collate_fn(batch):
+        """Merges a list of samples to form a mini-batch of Tensor(s)"""
+        images_stack, breast_birads, breast_density, study_ids = zip(*batch)
+        return torch.stack(images_stack, 0), torch.cat(breast_birads, 0), torch.cat(breast_density, 0), study_ids

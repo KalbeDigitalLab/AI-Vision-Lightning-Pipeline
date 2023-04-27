@@ -12,8 +12,8 @@ def test_vindrmammo_load_dataset(vindr_mammography_dataset_dir):
     images_stack, breast_birads, breast_density, study_ids = fo_dataset[0]
     assert images_stack.shape == (384, 384, 4)
     assert isinstance(images_stack, torch.Tensor)
-    assert len(breast_birads) == 4
-    assert len(breast_density) == 4
+    assert len(breast_birads) == 1
+    assert len(breast_density) == 1
     assert len(study_ids) == 4
 
 
@@ -32,8 +32,8 @@ def test_vindrmammo_dataset_transforms(vindr_mammography_dataset_dir):
 
     images_stack, breast_birads, breast_density, study_ids = fo_dataset[0]
     assert images_stack.shape == (4, 600, 500)
-    assert len(breast_birads) == 4
-    assert len(breast_density) == 4
+    assert len(breast_birads) == 1
+    assert len(breast_density) == 1
     assert len(study_ids) == 4
 
 

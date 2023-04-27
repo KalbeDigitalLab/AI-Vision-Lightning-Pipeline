@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from typing import Any, Optional
 
 import fiftyone
@@ -17,7 +18,7 @@ class FiftyOneDatasetParser(Dataset):
     path : str
         Path to dataset.
     stage : str, optional
-        Stage to apply augmentation, by default 'train'
+        Stage to apply augmentation, by default None
     transform : Any, optional
         Transformation function, by default None
 
@@ -27,10 +28,11 @@ class FiftyOneDatasetParser(Dataset):
         If the dataset has 0 samples.
     """
 
-    def __init__(self, path: str, stage: str = 'train', transform: Optional[Any] = None):
+    def __init__(self, path: str, stage: Optional[str] = None, transform: Optional[Any] = None):
         self._dataset = fiftyone.Dataset.from_dir(
             dataset_dir=path,
             dataset_type=fiftyone.types.FiftyOneDataset,
+            name=str(uuid.uuid1())
         )
 
         if len(self._dataset) == 0:

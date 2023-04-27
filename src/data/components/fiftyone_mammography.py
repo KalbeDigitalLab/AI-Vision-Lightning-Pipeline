@@ -27,25 +27,41 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
     path : str
         Path to dataset.
     stage : str, optional
-        Stage to slice dataset and apply augmentation, by default 'train'.
+        Stage to slice dataset and apply augmentation, by default None.
     transform : Optional[Any], optional
         Transformation callback, by default None.
     """
 
-    def __init__(self, num_views: int, path: str, stage: str = 'train', transform: Optional[Any] = None):
+    def __init__(self, num_views: int, path: str, stage: Optional[str] = None, transform: Optional[Any] = None):
         super().__init__(path, stage, transform)
 
-        self._dataset = self._dataset.match_tags(stage)
+        if self._stage is not None:
+            self._dataset = self._dataset.match_tags(self._stage)
 
         self._num_views = num_views
         self._group_ids = []
         for sample in self._dataset:
             self._group_ids.append(sample.view_side)
 
+        # * NOTE: fiftyone.Dataset is not pickle-able.
+        # * This will cause problem when using DDP
+        group_samples = [self._dataset.get_group(ids.id) for ids in self._group_ids]
+        self.group_samples = []
+        for sample in group_samples:
+            g_samples = {}
+            for key, val in sample.items():
+                g_samples[key] = val.to_dict()
+            self.group_samples.append(g_samples)
+        self._dataset = None
+
     @property
     def num_views(self) -> int:
         """Get dataset number of views."""
         return self._num_views
+
+    def __len__(self) -> int:
+        """Get number of samples in the dataset."""
+        return len(self.group_samples)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, List, List, List]:
         """Get samples from dataset.
@@ -69,7 +85,7 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         """
 
         # Get group and sort by left-right, cc-mlo
-        group = self._dataset.get_group(self._group_ids[idx].id)  # noqa: F821
+        group = self.group_samples[idx]  # noqa: F821
         sorted_keys = list(group.keys())
         sorted_keys.sort()
         group = {i: group[i] for i in sorted_keys}
@@ -80,10 +96,10 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         breast_density = []
 
         for g_data in group.values():
-            filepath = g_data.filepath
-            breast_density.append(g_data.breast_density.label)
-            breast_birads.append(g_data.breast_birads.label)
-            study_ids.append(str(g_data.study_id))
+            filepath = g_data['filepath']
+            breast_density.append(g_data['breast_density']['label'])
+            breast_birads.append(g_data['breast_birads']['label'])
+            study_ids.append(str(g_data['study_id']))
             image = Image.open(filepath).convert('L')
             images_stack.append(np.asarray(image))
 

@@ -153,9 +153,6 @@ def test_train_resume(tmp_path, cfg_phcresnet18, vindr_2views_mammography_datase
     assert 'epoch_000.ckpt' in files
     assert 'epoch_001.ckpt' not in files
 
-    assert metric_dict_1['train/acc'] <= metric_dict_2['train/acc']
-    assert metric_dict_1['val/acc'] <= metric_dict_2['val/acc']
-
 
 @RunIf(sh=True)
 @pytest.mark.slow

@@ -10,7 +10,7 @@ import xxhash
 
 
 @pytest.fixture(scope='session')
-def vindr_mammography_dataset_dir(tmp_path_factory):
+def vindr_4views_mammography_single_dataset_dir(tmp_path_factory):
     birads_level = [f'BI-RADS {i}' for i in range(6)]
     density_level = [f'DENSITY {i}' for i in ['A', 'B', 'C', 'D']]
 
@@ -78,7 +78,7 @@ def vindr_mammography_dataset_dir(tmp_path_factory):
 
 
 @pytest.fixture(scope='session')
-def vindr_2views_mammography_dataset_dir(tmp_path_factory):
+def vindr_2views_mammography_single_dataset_dir(tmp_path_factory):
     birads_level = [f'BI-RADS {i}' for i in range(6)]
     density_level = [f'DENSITY {i}' for i in ['A', 'B', 'C', 'D']]
 

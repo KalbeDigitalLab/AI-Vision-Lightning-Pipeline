@@ -106,7 +106,8 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         if len(images_stack) != self._num_views:
             raise ValueError(f'Incorrect number of provided images. \
                              Expected {self._num_views}, got {len(images_stack)}')
-        images_stack = np.stack(images_stack, axis=-1)
+        images_stack = np.stack(images_stack, axis=0)
+        images_stack = torch.from_numpy(images_stack).to(torch.float32)
 
         # Forcing to normal/bening or malignant
         breast_birads = [int(re.search(r'\d+', level).group()) for level in breast_birads]
@@ -123,10 +124,6 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
 
         if self._transform is not None:
             images_stack = self._transform(images_stack)
-
-        if not isinstance(images_stack, torch.Tensor):
-            images_stack = torch.from_numpy(images_stack).to(torch.float32)
-            images_stack /= 255
 
         return images_stack, torch.tensor(breast_birads, dtype=torch.int64), torch.tensor(breast_density, dtype=torch.int64), study_ids
 

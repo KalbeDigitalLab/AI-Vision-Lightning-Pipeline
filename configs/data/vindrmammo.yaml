@@ -1,4 +1,4 @@
-_target_: src.data.phbreast_datamodule.PHBReastLitDatamodule
+_target_: src.data.vindrmammo_datamodule.VinDrLitDatamodule
 data_dir: ${paths.data_dir}
 num_views: 4
 num_classes: 2

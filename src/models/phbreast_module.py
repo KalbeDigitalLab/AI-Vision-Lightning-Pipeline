@@ -39,6 +39,7 @@ class PHBreastLitModule(LightningModule):
         self,
         net: torch.nn.Module,
         num_classes: int = 2,
+        task: str = 'binary',
         lr: float = 0.00001,
         weight_decay: float = 0.0005,
         optimizer_type: str = 'adam',
@@ -48,6 +49,8 @@ class PHBreastLitModule(LightningModule):
 
         if optimizer_type.lower() not in ['adam']:
             raise ValueError('Optimizer {} is not supported. Only [Adam] is supported.')
+        if task.lower() not in ['binary', 'multiclass']:
+            raise ValueError('Task {} is not supported. Only [binary, multiclass] are supported.')
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
@@ -56,16 +59,19 @@ class PHBreastLitModule(LightningModule):
         self.net = net
 
         # loss function
-        self.criterion = torch.nn.CrossEntropyLoss()
+        if task == 'binary':
+            self.criterion = torch.nn.BCEWithLogitsLoss()
+        else:
+            self.criterion = torch.nn.CrossEntropyLoss()
 
         # metric objects for calculating and averaging accuracy across batches
         self.train_metrics = tm.MetricCollection({
-            'acc': tm.Accuracy(task='multiclass', num_classes=num_classes, average='macro'),
-            'prec': tm.Precision(task='multiclass', num_classes=num_classes, average='macro'),
-            'rec': tm.Recall(task='multiclass', num_classes=num_classes, average='macro'),
-            'auroc': tm.AUROC(task='multiclass', num_classes=num_classes, average='macro'),
-            'f1': tm.F1Score(task='multiclass', num_classes=num_classes, average='macro')
-        })
+            'acc': tm.Accuracy(task=task, num_classes=num_classes, average='macro'),
+            'prec': tm.Precision(task=task, num_classes=num_classes, average='macro'),
+            'rec': tm.Recall(task=task, num_classes=num_classes, average='macro'),
+            'auroc': tm.AUROC(task=task, num_classes=num_classes, average='macro'),
+            'f1': tm.F1Score(task=task, num_classes=num_classes, average='macro')
+        })  # type: ignore
 
         self.val_metrics = self.train_metrics.clone()
 
@@ -86,12 +92,18 @@ class PHBreastLitModule(LightningModule):
         self.val_metrics.reset()
 
     def model_step(self, batch: Any):
-        images_stack, breast_classes, _, _ = batch
-        breast_classes = breast_classes.squeeze().long()
+        images_stack, targets = batch[:2]
+        if self.hparams.task == 'binary':
+            targets = targets.float()
+        else:
+            targets = targets.squeeze().long()
         logits = self.forward(images_stack)
-        loss = self.criterion(logits, breast_classes)
-        preds = F.softmax(logits, dim=1)
-        return loss, preds, breast_classes
+        loss = self.criterion(logits, targets)
+        if self.hparams.task == 'binary':
+            preds = torch.sigmoid(logits)
+        else:
+            preds = F.softmax(logits, dim=1)
+        return loss, preds, targets
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.model_step(batch)

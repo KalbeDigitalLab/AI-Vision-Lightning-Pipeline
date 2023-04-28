@@ -1,6 +1,7 @@
 _target_: src.models.phbreast_module.PHBreastLitModule
 
-num_classes: 2
+num_classes: 1
+task: binary
 lr: 0.00001
 weight_decay: 0.0005
 optimizer_type: adam

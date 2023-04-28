@@ -4,12 +4,13 @@ from lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import transforms
 
-from src.data.components.fiftyone_mammography import FiftyOneVinDrMammography
+from src.data.components.phbreast_dataset_parser import PHBreastZIPDataset
 
 
 class PHBReastLitDatamodule(LightningDataModule):
-    """LightningDataModule for Parametrized Hypercomplex Breast Cancer dataset.
+    """LightningDataModule for default Parametrized Hypercomplex Breast Cancer dataset.
 
+    Source: https://github.com/ispamm/PHBreast
     Read the docs:
         https://lightning.ai/docs/pytorch/latest/data/datamodule.html
 
@@ -49,7 +50,6 @@ class PHBReastLitDatamodule(LightningDataModule):
 
         # data transformations
         self.train_transforms = transforms.Compose([
-            transforms.ToTensor(),
             transforms.Resize(tuple(input_size)),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
@@ -57,7 +57,6 @@ class PHBReastLitDatamodule(LightningDataModule):
         ])
 
         self.val_transforms = transforms.Compose([
-            transforms.ToTensor(),
             transforms.Resize(tuple(input_size)),
         ])
 
@@ -74,27 +73,27 @@ class PHBReastLitDatamodule(LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         """Load the data with specified stage."""
         if stage in ['train', 'fit', None] and self.data_train is None:
-            self.data_train = FiftyOneVinDrMammography(
+            self.data_train = PHBreastZIPDataset(
                 path=self.hparams.data_dir, num_views=self.hparams.num_views,
                 stage='train', transform=self.train_transforms)
             if len(self.data_train) == 0:
                 raise ValueError('Train dataset is empty.')
         if stage in ['validation', 'test', 'fit', None]:
             if self.data_val is None:
-                self.data_val = FiftyOneVinDrMammography(
+                self.data_val = PHBreastZIPDataset(
                     path=self.hparams.data_dir, num_views=self.hparams.num_views,
-                    stage='test', transform=self.val_transforms)
+                    stage='validation', transform=self.val_transforms)
                 if len(self.data_val) == 0:
                     raise ValueError('Validation dataset is empty.')
             if self.data_test is None:
-                self.data_test = FiftyOneVinDrMammography(
+                self.data_test = PHBreastZIPDataset(
                     path=self.hparams.data_dir, num_views=self.hparams.num_views,
-                    stage='test', transform=self.val_transforms)
+                    stage='validation', transform=self.val_transforms)
                 if len(self.data_test) == 0:
                     raise ValueError('Test dataset is empty.')
         if stage == 'predict':
             if self.data_test is None:
-                self.data_predict = FiftyOneVinDrMammography(
+                self.data_predict = PHBreastZIPDataset(
                     path=self.hparams.data_dir, num_views=self.hparams.num_views,
                     stage=None, transform=self.val_transforms)
                 if len(self.data_predict) == 0:
@@ -108,7 +107,6 @@ class PHBReastLitDatamodule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=True,
-            collate_fn=FiftyOneVinDrMammography.collate_fn,
         )
 
     def val_dataloader(self):
@@ -119,7 +117,6 @@ class PHBReastLitDatamodule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            collate_fn=FiftyOneVinDrMammography.collate_fn,
         )
 
     def test_dataloader(self):
@@ -130,5 +127,4 @@ class PHBReastLitDatamodule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            collate_fn=FiftyOneVinDrMammography.collate_fn,
         )

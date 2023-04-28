@@ -4,15 +4,15 @@
 # python train.py experiment=example
 
 defaults:
-  - override /data: vindrmammo.yaml
-  - override /model: phcresnet_2view.yaml
+  - override /data: phbreast.yaml
+  - override /model: phcresnet.yaml
   - override /callbacks: default.yaml
   - override /trainer: default.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
-tags: ["phbreast", "vindrmammo", "2_views", "phcresnet18"]
+tags: ["phbreast", "inbreast", "patches", "2_views", "phcresnet50"]
 
 seed: 12345
 
@@ -22,7 +22,8 @@ trainer:
   gradient_clip_val: 0.5
 
 model:
-  num_classes: 2
+  num_classes: ${data.num_classes}
+  task: multiclass
   lr: 0.00001
   weight_decay: 0.0005
   optimizer_type: adam
@@ -32,9 +33,10 @@ model:
     n: 2
 
 data:
+  num_views: 5
+  num_classes: 5
   batch_size: 8
   num_workers: 2
-  num_views: 2
   pin_memory: True
 
 logger:

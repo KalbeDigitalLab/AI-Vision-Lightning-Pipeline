@@ -7,6 +7,7 @@ import pytest
 import torch
 
 import src.models.components.layers.hypercomplex_layers as hpc_layers
+from tests.helpers.run_if import RunIf
 
 
 def timeit(func):
@@ -105,6 +106,29 @@ def test_run_phm_linear():
         assert layer.reset_parameters() == None
 
 
+@RunIf(min_gpus=1)
+def test_run_phm_linear_gpu():
+    device = torch.device('cuda')
+    n_sizes = [1, 2, 3, 4, 5, 7, 9, 12]
+    output_size = random.randrange(0, 1000, np.lcm.reduce(n_sizes))  # nosec B311
+
+    for size in n_sizes:
+        input_size = np.lcm.reduce(n_sizes)
+        layer = hpc_layers.PHMLinear(size, input_size, output_size).to(device)
+
+        input_tensors = [
+            torch.zeros((100, input_size)),
+            torch.ones((100, input_size)),
+            torch.rand((100, input_size))
+        ]
+        for inp in input_tensors:
+            inp = inp.to(device)
+            _ = layer(inp)
+
+        assert layer.extra_repr() == f'in_features={input_size}, out_features={output_size}, bias=True'
+        assert layer.reset_parameters() == None
+
+
 def test_conv_kronecker_product():
     n_size = 4
     kernel_size = 3
@@ -147,6 +171,30 @@ def test_run_phm_conv():
             torch.rand((100, input_size, 64, 64))
         ]
         for inp in input_tensors:
+            _ = layer(inp)
+
+        assert layer.extra_repr() == f'in_features={input_size}, out_features={output_size}, bias=True'
+        assert layer.reset_parameters() == None
+
+
+@RunIf(min_gpus=1)
+def test_run_phm_conv_gpu():
+    device = torch.device('cuda')
+    n_sizes = [1, 2, 3, 4, 5, 8]
+    output_size = random.randrange(0, 1000, np.lcm.reduce(n_sizes))  # nosec B311
+    if output_size == 0:
+        output_size = np.lcm.reduce(n_sizes)
+    for size in n_sizes:
+        input_size = np.lcm.reduce(n_sizes)
+        layer = hpc_layers.PHConv(size, input_size, output_size, kernel_size=3).to(device)
+
+        input_tensors = [
+            torch.zeros((100, input_size, 64, 64)),
+            torch.ones((100, input_size, 64, 64)),
+            torch.rand((100, input_size, 64, 64))
+        ]
+        for inp in input_tensors:
+            inp = inp.to(device)
             _ = layer(inp)
 
         assert layer.extra_repr() == f'in_features={input_size}, out_features={output_size}, bias=True'

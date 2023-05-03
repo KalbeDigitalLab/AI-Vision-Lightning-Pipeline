@@ -78,6 +78,7 @@ class PHMLinear(nn.Module):
     def kronecker_product2(self) -> torch.Tensor:
         """Compute the kronecker products between 2 tensors."""
         H = torch.zeros((self.out_features, self.in_features))
+        H = H.to(self.A.device)
         for i in range(self.n):
             H += torch.kron(self.A[i], self.S[i])
         return H
@@ -169,6 +170,7 @@ class PHConv(Module):
     def kronecker_product2(self) -> torch.Tensor:
         """Compute the kronecker products between 2 tensors."""
         H = torch.zeros((self.out_features, self.in_features, self.kernel_size, self.kernel_size))
+        H = H.to(self.A.device)
         for i in range(self.n):
             H += torch.kron(self.A[i].unsqueeze(-1).unsqueeze(-1), self.F[i])
         return H

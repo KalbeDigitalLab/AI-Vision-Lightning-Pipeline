@@ -24,6 +24,7 @@ def cfg_train_global() -> DictConfig:
             cfg.trainer.accelerator = 'cpu'
             cfg.trainer.devices = 1
             cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
             cfg.data.pin_memory = False
             cfg.extras.print_config = False
             cfg.extras.enforce_tags = False
@@ -47,6 +48,7 @@ def cfg_eval_global() -> DictConfig:
             cfg.trainer.accelerator = 'cpu'
             cfg.trainer.devices = 1
             cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
             cfg.data.pin_memory = False
             cfg.extras.print_config = False
             cfg.extras.enforce_tags = False
@@ -100,6 +102,7 @@ def cfg_phcresnet_global() -> DictConfig:
             cfg.trainer.devices = 1
             cfg.data.input_size = [300, 250]
             cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
             cfg.data.pin_memory = False
             cfg.extras.print_config = False
             cfg.extras.enforce_tags = False
@@ -130,7 +133,81 @@ def cfg_phcresnet50(cfg_phcresnet_global, tmp_path) -> DictConfig:
         cfg.paths.output_dir = str(tmp_path)
         cfg.paths.log_dir = str(tmp_path)
         cfg.data.num_views = 2
-        cfg.model._target_ = 'src.models.components.hypercomplex_models.PHCResNet50'
+        cfg.model.net._target_ = 'src.models.components.hypercomplex_models.PHCResNet50'
+
+    yield cfg
+
+    GlobalHydra.instance().clear()
+
+
+@pytest.fixture(scope='package')
+def cfg_physbonet_global() -> DictConfig:
+    with initialize(version_base='1.3', config_path='../configs'):
+        cfg = compose(config_name='train.yaml',
+                      return_hydra_config=True, overrides=['model=physbonet', 'data=phbreast'])
+
+        # set defaults for all tests
+        with open_dict(cfg):
+            cfg.paths.root_dir = str(
+                pyrootutils.find_root(indicator='.project-root'))
+            cfg.trainer.max_epochs = 1
+            cfg.trainer.accelerator = 'cpu'
+            cfg.trainer.devices = 1
+            cfg.data.input_size = [300, 250]
+            cfg.data.batch_size = 4
+            cfg.data.num_workers = 0
+            cfg.data.pin_memory = False
+            cfg.extras.print_config = False
+            cfg.extras.enforce_tags = False
+            cfg.logger = None
+
+    return cfg
+
+
+@pytest.fixture(scope='function')
+def cfg_physbonet(cfg_physbonet_global, tmp_path) -> DictConfig:
+    cfg = cfg_physbonet_global.copy()
+
+    with open_dict(cfg):
+        cfg.paths.output_dir = str(tmp_path)
+        cfg.paths.log_dir = str(tmp_path)
+
+    yield cfg
+
+    GlobalHydra.instance().clear()
+
+
+@pytest.fixture(scope='package')
+def cfg_physenet_global() -> DictConfig:
+    with initialize(version_base='1.3', config_path='../configs'):
+        cfg = compose(config_name='train.yaml',
+                      return_hydra_config=True, overrides=['model=physenet', 'data=phbreast'])
+
+        # set defaults for all tests
+        with open_dict(cfg):
+            cfg.paths.root_dir = str(
+                pyrootutils.find_root(indicator='.project-root'))
+            cfg.trainer.max_epochs = 1
+            cfg.trainer.accelerator = 'cpu'
+            cfg.trainer.devices = 1
+            cfg.data.input_size = [300, 250]
+            cfg.data.batch_size = 4
+            cfg.data.num_workers = 0
+            cfg.data.pin_memory = False
+            cfg.extras.print_config = False
+            cfg.extras.enforce_tags = False
+            cfg.logger = None
+
+    return cfg
+
+
+@pytest.fixture(scope='function')
+def cfg_physenet(cfg_physenet_global, tmp_path) -> DictConfig:
+    cfg = cfg_physenet_global.copy()
+
+    with open_dict(cfg):
+        cfg.paths.output_dir = str(tmp_path)
+        cfg.paths.log_dir = str(tmp_path)
 
     yield cfg
 

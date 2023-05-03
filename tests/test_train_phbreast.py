@@ -5,7 +5,11 @@ from hydra.core.hydra_config import HydraConfig
 from omegaconf import open_dict
 
 from src.train import train
-from tests.dummy_dataset import inbreast_2views_patches_dataset_path, inbreast_2views_single_dataset_path
+from tests.dummy_dataset import (
+    inbreast_2views_patches_dataset_path,
+    inbreast_2views_single_dataset_path,
+    inbreast_4views_multi_dataset_dir,
+)
 from tests.helpers.run_if import RunIf
 from tests.helpers.run_sh_command import run_sh_command
 
@@ -13,7 +17,7 @@ startfile = 'src/train.py'
 overrides = ['logger=[]']
 
 
-def test_train_binary_fast_dev_run(cfg_phcresnet18, inbreast_2views_single_dataset_path):
+def test_train_phcresnet_binary_fast_dev_run(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
     with open_dict(cfg_phcresnet18):
@@ -23,7 +27,8 @@ def test_train_binary_fast_dev_run(cfg_phcresnet18, inbreast_2views_single_datas
     train(cfg_phcresnet18)
 
 
-def test_train_multiclass_fast_dev_run(cfg_phcresnet18, inbreast_2views_patches_dataset_path):
+@pytest.mark.skip('Multiclass is disabled')
+def test_train_phcresnet_multiclass_fast_dev_run(cfg_phcresnet18, inbreast_2views_patches_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
     with open_dict(cfg_phcresnet18):
@@ -36,6 +41,34 @@ def test_train_multiclass_fast_dev_run(cfg_phcresnet18, inbreast_2views_patches_
     train(cfg_phcresnet18)
 
 
+def test_train_physbonet_binary_fast_dev_run_gpu(cfg_physbonet, inbreast_4views_multi_dataset_dir):
+    """Run for 1 train, val and test step."""
+    HydraConfig().set_config(cfg_physbonet)
+    with open_dict(cfg_physbonet):
+        cfg_physbonet.paths.data_dir = inbreast_4views_multi_dataset_dir
+        cfg_physbonet.trainer.fast_dev_run = True
+        cfg_physbonet.trainer.accelerator = 'cpu'
+        cfg_physbonet.data.num_classes = 1
+        cfg_physbonet.data.num_views = 4
+        cfg_physbonet.model.num_classes = 1
+        cfg_physbonet.model.task = 'binary'
+    train(cfg_physbonet)
+
+
+def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, inbreast_4views_multi_dataset_dir):
+    """Run for 1 train, val and test step."""
+    HydraConfig().set_config(cfg_physenet)
+    with open_dict(cfg_physenet):
+        cfg_physenet.paths.data_dir = inbreast_4views_multi_dataset_dir
+        cfg_physenet.trainer.fast_dev_run = True
+        cfg_physenet.trainer.accelerator = 'cpu'
+        cfg_physenet.data.num_classes = 1
+        cfg_physenet.data.num_views = 4
+        cfg_physenet.model.num_classes = 1
+        cfg_physenet.model.task = 'binary'
+    train(cfg_physenet)
+
+
 @RunIf(min_gpus=1)
 def test_train_fast_dev_run_gpu(cfg_phcresnet50, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step on GPU."""
@@ -44,6 +77,8 @@ def test_train_fast_dev_run_gpu(cfg_phcresnet50, inbreast_2views_single_dataset_
         cfg_phcresnet50.paths.data_dir = inbreast_2views_single_dataset_path
         cfg_phcresnet50.trainer.fast_dev_run = True
         cfg_phcresnet50.trainer.accelerator = 'gpu'
+        cfg_phcresnet50.model.task = 'binary'
+        cfg_phcresnet50.data.batch_size = 2
     train(cfg_phcresnet50)
 
 
@@ -55,8 +90,9 @@ def test_train_epoch_gpu_amp(cfg_phcresnet18, inbreast_2views_single_dataset_pat
     with open_dict(cfg_phcresnet18):
         cfg_phcresnet18.paths.data_dir = inbreast_2views_single_dataset_path
         cfg_phcresnet18.trainer.max_epochs = 1
-        cfg_phcresnet18.trainer.accelerator = 'cpu'
+        cfg_phcresnet18.trainer.accelerator = 'gpu'
         cfg_phcresnet18.trainer.precision = 16
+        cfg_phcresnet18.data.batch_size = 2
     train(cfg_phcresnet18)
 
 

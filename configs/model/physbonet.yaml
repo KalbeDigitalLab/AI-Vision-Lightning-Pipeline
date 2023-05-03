@@ -1,0 +1,15 @@
+_target_: src.models.phbreast_module.PHBreastLitModule
+
+num_classes: 1
+task: binary
+split_input: True
+lr: 0.00001
+weight_decay: 0.0005
+optimizer_type: adam
+scheduler_type: null
+net:
+  _target_: src.models.components.hypercomplex_models.PHYSBOnet
+  n: 4
+  shared: True
+  num_classes: ${..num_classes}
+  weights: null

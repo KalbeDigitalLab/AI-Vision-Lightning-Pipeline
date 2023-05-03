@@ -231,3 +231,22 @@ def inbreast_2views_multi_dataset_dir(tmp_path_factory):
         torch.save(samples, output_dir)
 
     return str(root_dir)
+
+
+@pytest.fixture(scope='session')
+def inbreast_4views_multi_dataset_dir(tmp_path_factory):
+    root_dir = tmp_path_factory.mktemp('temp_inbreast_2views_vindr_dataset_dir')
+
+    num_samples = 40
+
+    for num_samples, name in [(40, 'train'), (96, 'validation')]:
+        samples = []
+        for _ in range(num_samples):
+            image = torch.randint(0, 256, (4, 384, 384)).to(dtype=torch.float32)
+            label = random.choice([[0, 1], [1, 0]])  # nosec B311
+            samples.append((image, label))
+
+        output_dir = os.path.join(str(root_dir), f'temp_{name}inbreast_2views_dataset.pt')
+        torch.save(samples, output_dir)
+
+    return str(root_dir)

@@ -40,6 +40,7 @@ class PHBreastLitModule(LightningModule):
         net: torch.nn.Module,
         num_classes: int = 2,
         task: str = 'binary',
+        split_input: bool = False,
         lr: float = 0.00001,
         weight_decay: float = 0.0005,
         optimizer_type: str = 'adam',
@@ -49,8 +50,8 @@ class PHBreastLitModule(LightningModule):
 
         if optimizer_type.lower() not in ['adam']:
             raise ValueError('Optimizer {} is not supported. Only [Adam] is supported.')
-        if task.lower() not in ['binary', 'multiclass']:
-            raise ValueError('Task {} is not supported. Only [binary, multiclass] are supported.')
+        if task.lower() not in ['binary']:
+            raise ValueError('Task {} is not supported. Only [binary] are supported.')
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
@@ -93,6 +94,8 @@ class PHBreastLitModule(LightningModule):
 
     def model_step(self, batch: Any):
         images_stack, targets = batch[:2]
+        if self.hparams.split_input or self.trainer.datamodule.num_views == 4:
+            images_stack = torch.split(images_stack, split_size_or_sections=2, dim=1)
         if self.hparams.task == 'binary':
             targets = targets.float()
         else:

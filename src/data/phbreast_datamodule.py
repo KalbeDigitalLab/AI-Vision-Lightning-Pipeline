@@ -66,6 +66,11 @@ class PHBReastLitDatamodule(LightningDataModule):
         self.data_predict: Optional[Dataset] = None
 
     @property
+    def num_views(self):
+        """Get number of input views/sides."""
+        return self.hparams.num_views
+
+    @property
     def num_classes(self):
         """Get number of classes."""
         return self.hparams.num_classes

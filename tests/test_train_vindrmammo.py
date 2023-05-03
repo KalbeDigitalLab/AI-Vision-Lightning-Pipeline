@@ -27,11 +27,11 @@ def test_train_phcresnet_binary_2views_fast_dev_run(cfg_phcresnet18, vindr_2view
         cfg_phcresnet18.trainer.fast_dev_run = True
         cfg_phcresnet18.trainer.accelerator = 'cpu'
         cfg_phcresnet18.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet18.data.output_type = 'single'
     train(cfg_phcresnet18)
 
 
 @RunIf(min_gpus=1)
-@pytest.mark.skip('Incorrect dataset output')
 def test_train_physbonet_binary_4views_fast_dev_run_gpu(cfg_physbonet, vindr_4views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_physbonet)
@@ -40,6 +40,7 @@ def test_train_physbonet_binary_4views_fast_dev_run_gpu(cfg_physbonet, vindr_4vi
         cfg_physbonet.trainer.fast_dev_run = True
         cfg_physbonet.trainer.accelerator = 'gpu'
         cfg_physbonet.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_physbonet.data.output_type = 'multiple'
         cfg_physbonet.data.num_classes = 1
         cfg_physbonet.data.num_views = 4
         cfg_physbonet.model.num_classes = 1
@@ -48,7 +49,6 @@ def test_train_physbonet_binary_4views_fast_dev_run_gpu(cfg_physbonet, vindr_4vi
 
 
 @RunIf(min_gpus=1)
-@pytest.mark.skip('Incorrect dataset output')
 def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, vindr_4views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_physenet)
@@ -57,6 +57,7 @@ def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, vindr_4views_mammo
         cfg_physenet.trainer.fast_dev_run = True
         cfg_physenet.trainer.accelerator = 'gpu'
         cfg_physenet.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_physenet.data.output_type = 'multiple'
         cfg_physenet.data.num_classes = 1
         cfg_physenet.data.num_views = 4
         cfg_physenet.model.num_classes = 1
@@ -73,6 +74,7 @@ def test_train_fast_dev_run_gpu(cfg_phcresnet50, vindr_2views_mammography_single
         cfg_phcresnet50.trainer.fast_dev_run = True
         cfg_phcresnet50.trainer.accelerator = 'gpu'
         cfg_phcresnet50.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet50.data.output_type = 'single'
         cfg_phcresnet50.data.batch_size = 2
     train(cfg_phcresnet50)
 
@@ -88,6 +90,7 @@ def test_train_epoch_gpu_amp(cfg_phcresnet18, vindr_2views_mammography_single_da
         cfg_phcresnet18.trainer.accelerator = 'gpu'
         cfg_phcresnet18.trainer.precision = 16
         cfg_phcresnet18.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet18.data.output_type = 'single'
         cfg_phcresnet18.data.batch_size = 2
     train(cfg_phcresnet18)
 
@@ -101,6 +104,7 @@ def test_train_epoch_double_val_loop(cfg_phcresnet18, vindr_2views_mammography_s
         cfg_phcresnet18.trainer.max_epochs = 1
         cfg_phcresnet18.trainer.val_check_interval = 0.5
         cfg_phcresnet18.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet18.data.output_type = 'single'
     train(cfg_phcresnet18)
 
 
@@ -117,6 +121,7 @@ def test_train_ddp_sim(cfg_phcresnet18, vindr_2views_mammography_single_dataset_
         cfg_phcresnet18.trainer.strategy = 'ddp_spawn'
         cfg_phcresnet18.trainer.fast_dev_run = True
         cfg_phcresnet18.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet18.data.output_type = 'single'
     train(cfg_phcresnet18)
 
 
@@ -127,6 +132,7 @@ def test_train_resume(tmp_path, cfg_phcresnet18, vindr_2views_mammography_single
         cfg_phcresnet18.trainer.max_epochs = 1
         cfg_phcresnet18.paths.data_dir = vindr_2views_mammography_single_dataset_dir
         cfg_phcresnet18.data._target_ = 'src.data.vindrmammo_datamodule.VinDrLitDatamodule'
+        cfg_phcresnet18.data.output_type = 'single'
 
     HydraConfig().set_config(cfg_phcresnet18)
     metric_dict_1, _ = train(cfg_phcresnet18)
@@ -174,6 +180,7 @@ def test_hydra_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
         'model=phcresnet',
         'data=vindrmammo',
         'data.num_views=2',
+        'data.output_type=single',
         'data.input_size=[300,250]',
         'model.lr=0.005,0.01',
         'paths.data_dir=' + vindr_2views_mammography_single_dataset_dir,
@@ -196,6 +203,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, vindr_2views_mammography_single_dataset_d
         'data=vindrmammo',
         'data.num_views=2',
         'data.input_size=[300,250]',
+        'data.output_type=single',
         'trainer=ddp_sim',
         'trainer.max_epochs=3',
         'model.lr=0.005,0.01,0.02',
@@ -215,6 +223,7 @@ def test_optuna_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
         'data=vindrmammo',
         'data.num_views=2',
         'data.input_size=[300,250]',
+        'data.output_type=single',
         'hparams_search=phcresnet_optuna',
         'hydra.sweep.dir=' + str(tmp_path),
         'hydra.sweeper.n_trials=10',

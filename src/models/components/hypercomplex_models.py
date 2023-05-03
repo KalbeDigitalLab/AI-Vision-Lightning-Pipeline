@@ -175,7 +175,8 @@ class PHYSBOnet(nn.Module):
             out_dx = self.classifier_dx(out)
 
         # * NOTE: Stack in new dimension (batch, 2, 2) instead of concat (batch, 4)
-        out = torch.stack([out_sx, out_dx], dim=1)
+        out = torch.cat([out_sx, out_dx], dim=1)
+
         return out
 
 
@@ -208,8 +209,6 @@ class PHYSEnet(nn.Module):
     def __init__(self, n=2, num_classes=1, weights=None, patch_weights=True, visualize=False):
         super().__init__()
         self.visualize = visualize
-        if n != 2:
-            raise ValueError(f'Number of dimension (n) must be 2, get n as: {n}')
         self.phcresnet18 = PHCResNet18(n=2, num_classes=num_classes, channels=2, before_gap_output=True)
 
         if weights:
@@ -241,7 +240,7 @@ class PHYSEnet(nn.Module):
             out_dx = self.classifier_dx(out_enc_dx)
 
         # * NOTE: Stack in new dimension (batch, 2, 2) instead of concat (batch, 4)
-        out = torch.stack([out_sx, out_dx], dim=1)
+        out = torch.cat([out_sx, out_dx], dim=1)
 
         if self.visualize:
             return out, out_enc_sx, out_enc_dx, act_sx, act_dx

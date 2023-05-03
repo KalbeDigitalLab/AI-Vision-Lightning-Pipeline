@@ -180,31 +180,24 @@ def test_physbonet(batch_size, dimension, shared):
     model = hpc_models.PHYSBOnet(n=2, shared=shared, num_classes=2)
     output = model(input)
 
-    assert output.ndim == 3
-    assert output.shape[1] == 2
-    assert output.shape[2] == 2
+    assert output.ndim == 2
+    assert output.shape[1] == 4
 
 
-@pytest.mark.parametrize('batch_size,dimension,n_size,visualize,expectation', [
-    [2, (300, 250), 2, True, True],
-    [4, (300, 250), 2, False, True],
-    [4, (300, 250), 4, False, False],
+@pytest.mark.parametrize('batch_size,dimension,n_size,visualize', [
+    [2, (300, 250), 4, True],
+    [4, (300, 250), 4, False],
+    [4, (300, 250), 4, False],
 ])
-def test_physenet(batch_size, dimension, n_size, visualize, expectation):
-    input = tuple([torch.rand([batch_size, n_size, *dimension]) for _ in range(2)])
+def test_physenet(batch_size, dimension, n_size, visualize):
+    input = tuple([torch.rand([batch_size, 2, *dimension]) for _ in range(2)])
 
-    if not expectation:
-        with pytest.raises(Exception):
-            model = hpc_models.PHYSEnet(n=n_size, num_classes=2, visualize=visualize)
+    model = hpc_models.PHYSEnet(n=n_size, num_classes=2, visualize=visualize)
+    output = model(input)
 
+    if visualize:
+        assert len(output) == 5
     else:
-        model = hpc_models.PHYSEnet(n=n_size, num_classes=2, visualize=visualize)
-        output = model(input)
-
-        if visualize:
-            assert len(output) == 5
-        else:
-            assert isinstance(output, torch.Tensor)
-            assert output.ndim == 3
-            assert output.shape[1] == n_size
-            assert output.shape[2] == 2
+        assert isinstance(output, torch.Tensor)
+        assert output.ndim == 2
+        assert output.shape[1] == 4

@@ -8,7 +8,7 @@ from PIL import Image
 from src.data.components.fiftyone_parser import FiftyOneDatasetParser
 
 
-class FiftyOneVinDrMammography(FiftyOneDatasetParser):
+class VinDrMammographyDataset(FiftyOneDatasetParser):
     """VinDrMammography Dataset Parser.
 
     The dataset is stored using FiftyOneDataset format for easy visualization and integration.
@@ -32,7 +32,7 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         Transformation callback, by default None.
     """
 
-    def __init__(self, num_views: int, path: str, stage: Optional[str] = None, transform: Optional[Any] = None):
+    def __init__(self, num_views: int, path: str, output_type: str = 'multiple', stage: Optional[str] = None, transform: Optional[Any] = None):
         super().__init__(path, stage, transform)
 
         if self._stage is not None:
@@ -53,6 +53,7 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
                 g_samples[key] = val.to_dict()
             self.group_samples.append(g_samples)
         self._dataset = None
+        self.output_type = output_type
 
     @property
     def num_views(self) -> int:
@@ -94,11 +95,21 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         study_ids = []
         breast_birads = []
         breast_density = []
+        finding_objects = []
 
         for g_data in group.values():
             filepath = g_data['filepath']
             breast_density.append(g_data['breast_density']['label'])
             breast_birads.append(g_data['breast_birads']['label'])
+            if 'findings_objects' in g_data:
+                objects = [data['label'] for data in g_data['findings_objects']['detections']]
+                objects.sort(reverse=True)
+                if len(objects) > 0:
+                    finding_objects.append(objects[0])
+                else:
+                    finding_objects.append(breast_birads[-1])
+            else:
+                finding_objects.append(breast_birads[-1])
             study_ids.append(str(g_data['study_id']))
             image = Image.open(filepath).convert('L')
             images_stack.append(np.asarray(image))
@@ -109,12 +120,21 @@ class FiftyOneVinDrMammography(FiftyOneDatasetParser):
         images_stack = np.stack(images_stack, axis=0)
         images_stack = torch.from_numpy(images_stack).to(torch.float32)
 
-        # Forcing to normal/bening or malignant
-        breast_birads = [int(re.search(r'\d+', level).group()) for level in breast_birads]
-        breast_birads = list({0 if level < 3 else 1 for level in breast_birads})
-        if len(breast_birads) != 1:
-            raise RuntimeError(
-                f'The breast birads is not unique for the given group. This group has {breast_birads}')
+        if self.output_type == 'multiple':
+            finding_objects = [int(re.search(r'\d+', level).group()) for level in finding_objects]
+            left_birads, right_birads = finding_objects[:2], finding_objects[2:]
+            left_birads.sort(reverse=True)
+            right_birads.sort(reverse=True)
+            breast_birads = [left_birads[0], right_birads[0]]
+            breast_birads = [0 if level < 3 else 1 for level in breast_birads]
+
+        else:
+            # Forcing to normal/bening or malignant
+            breast_birads = [int(re.search(r'\d+', level).group()) for level in breast_birads]
+            breast_birads = list({0 if level < 3 else 1 for level in breast_birads})
+            if len(breast_birads) != 1:
+                raise RuntimeError(
+                    f'The breast birads is not unique for the given group. This group has {breast_birads}')
 
         breast_density = [level.split(' ')[1] for level in breast_density]
         breast_density = list({['A', 'B', 'C', 'D'].index(level) for level in breast_density})

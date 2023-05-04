@@ -126,10 +126,9 @@ class PHBreastLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.train_mean_loss(loss)
+        self.train_mean_loss.update(loss)
         metrics = self.train_metrics(preds, targets)
         self.log('train/loss', loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log('train/loss_mean', self.train_mean_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log('train/acc', metrics['acc'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('train/prec', metrics['prec'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('train/rec', metrics['rec'], on_step=False, on_epoch=True, prog_bar=False)
@@ -140,7 +139,8 @@ class PHBreastLitModule(LightningModule):
         return loss
 
     def on_train_epoch_end(self):
-        pass
+        loss_mean = self.train_mean_loss.compute()
+        self.log('train/loss_mean', loss_mean, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_train_epoch_start(self):
         self.reset_metrics()
@@ -149,10 +149,9 @@ class PHBreastLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.val_mean_loss(loss)
+        self.val_mean_loss.update(loss)
         metrics = self.val_metrics(preds, targets)
         self.log('val/loss', loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log('val/loss_mean', self.val_mean_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log('val/acc', metrics['acc'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('val/prec', metrics['prec'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('val/rec', metrics['rec'], on_step=False, on_epoch=True, prog_bar=False)
@@ -160,16 +159,16 @@ class PHBreastLitModule(LightningModule):
         self.log('val/f1', metrics['f1'], on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self):
-        pass
+        loss_mean = self.val_mean_loss.compute()
+        self.log('val/loss_mean', loss_mean, on_step=False, on_epoch=True, prog_bar=True)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.test_mean_loss(loss)
+        self.test_mean_loss.update(loss)
         metrics = self.test_metrics(preds, targets)
         self.log('test/loss', loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log('test/loss_mean', self.test_mean_loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log('test/acc', metrics['acc'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('test/prec', metrics['prec'], on_step=False, on_epoch=True, prog_bar=False)
         self.log('test/rec', metrics['rec'], on_step=False, on_epoch=True, prog_bar=False)
@@ -177,7 +176,8 @@ class PHBreastLitModule(LightningModule):
         self.log('test/f1', metrics['f1'], on_step=False, on_epoch=True, prog_bar=False)
 
     def on_test_epoch_end(self):
-        pass
+        loss_mean = self.test_mean_loss.compute()
+        self.log('test/loss_mean', loss_mean, on_step=False, on_epoch=True, prog_bar=False)
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization. Normally

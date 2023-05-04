@@ -50,8 +50,8 @@ class PHBreastLitModule(LightningModule):
 
         if optimizer_type.lower() not in ['adam']:
             raise ValueError('Optimizer {} is not supported. Only [Adam] is supported.')
-        if task.lower() not in ['binary']:
-            raise ValueError('Task {} is not supported. Only [binary] are supported.')
+        if task.lower() not in ['binary', 'multiclass']:
+            raise ValueError('Task {} is not supported. Only [binary, multiclass] are supported.')
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt

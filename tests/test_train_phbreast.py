@@ -27,7 +27,6 @@ def test_train_phcresnet_binary_fast_dev_run(cfg_phcresnet18, inbreast_2views_si
     train(cfg_phcresnet18)
 
 
-@pytest.mark.skip('Multiclass is disabled')
 def test_train_phcresnet_multiclass_fast_dev_run(cfg_phcresnet18, inbreast_2views_patches_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)

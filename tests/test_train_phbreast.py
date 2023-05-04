@@ -37,6 +37,8 @@ def test_train_phcresnet_multiclass_fast_dev_run(cfg_phcresnet18, inbreast_2view
         cfg_phcresnet18.data.num_classes = 5
         cfg_phcresnet18.model.num_classes = 5
         cfg_phcresnet18.model.task = 'multiclass'
+        cfg_phcresnet18.model.auto_lr = True
+        cfg_phcresnet18.model.lr = 1.0
     train(cfg_phcresnet18)
 
 

@@ -1,5 +1,7 @@
+import warnings
 from typing import Any, Optional
 
+import dadaptation as dadapt_optim
 import torch
 import torch.nn.functional as F
 import torchmetrics as tm
@@ -41,17 +43,23 @@ class PHBreastLitModule(LightningModule):
         num_classes: int = 2,
         task: str = 'binary',
         split_input: bool = False,
+        auto_lr: bool = False,
         lr: float = 0.00001,
         weight_decay: float = 0.0005,
+        momentum: float = 0.9,
         optimizer_type: str = 'adam',
         scheduler_type: Optional[str] = None,
     ):
         super().__init__()
 
-        if optimizer_type.lower() not in ['adam']:
-            raise ValueError('Optimizer {} is not supported. Only [Adam] is supported.')
+        if optimizer_type.lower() not in ['adam', 'sgd']:
+            raise ValueError('Optimizer {} is not supported. Only [Adam, SGD] is supported.')
         if task.lower() not in ['binary', 'multiclass']:
             raise ValueError('Task {} is not supported. Only [binary, multiclass] are supported.')
+
+        if auto_lr:
+            if lr != 1.0:
+                warnings.warn('Learning for DAdapt Optimizer should be 1.0')
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
@@ -178,9 +186,28 @@ class PHBreastLitModule(LightningModule):
         Examples:
             https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#configure-optimizers
         """
-        if self.hparams.optimizer_type == 'adam':
-            optimizer = torch.optim.Adam(params=self.parameters(), lr=self.hparams.lr,
-                                         weight_decay=self.hparams.weight_decay)
+        if self.hparams.optimizer_type.lower() == 'adam':
+            optimizer_func = torch.optim.Adam
+            if self.hparams.auto_lr:
+                optimizer_func = dadapt_optim.DAdaptAdam
+
+            optimizer = optimizer_func(
+                params=self.parameters(),
+                lr=self.hparams.lr,
+                weight_decay=self.hparams.weight_decay,
+            )
+
+        elif self.hparams.optimizer_type.lower() == 'sgd':
+            if self.hparams.auto_lr:
+                optimizer_func = dadapt_optim.DAdaptSGD
+
+            optimizer = optimizer_func(
+                params=self.parameters(),
+                lr=self.hparams.lr,
+                momentum=self.hparams.momentum,
+                weight_decay=self.hparams.weight_decay,
+            )
+
         return {'optimizer': optimizer}
 
 

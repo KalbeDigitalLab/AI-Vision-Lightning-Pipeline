@@ -50,14 +50,14 @@ class PHBReastLitDatamodule(LightningDataModule):
 
         # data transformations
         self.train_transforms = transforms.Compose([
-            transforms.Resize(tuple(input_size)),
+            transforms.Resize(tuple(input_size), antialias=True),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.RandomRotation((-25, 25)),
         ])
 
         self.val_transforms = transforms.Compose([
-            transforms.Resize(tuple(input_size)),
+            transforms.Resize(tuple(input_size), antialias=True),
         ])
 
         self.data_train: Optional[Dataset] = None

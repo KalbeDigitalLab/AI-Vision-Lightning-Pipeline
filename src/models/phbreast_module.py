@@ -83,14 +83,20 @@ class PHBreastLitModule(LightningModule):
         self.val_mean_loss = tm.MeanMetric()
         self.test_mean_loss = tm.MeanMetric()
 
+    def reset_metrics(self):
+        self.train_mean_loss.reset()
+        self.val_mean_loss.reset()
+        self.test_mean_loss.reset()
+        self.train_metrics.reset()
+        self.val_metrics.reset()
+
     def forward(self, x: torch.Tensor):
         return self.net(x)
 
     def on_train_start(self):
         # by default lightning executes validation step sanity checks before training starts,
         # so it's worth to make sure validation metrics don't store results from these checks
-        self.val_mean_loss.reset()
-        self.val_metrics.reset()
+        self.reset_metrics()
 
     def model_step(self, batch: Any):
         images_stack, targets = batch[:2]
@@ -127,6 +133,9 @@ class PHBreastLitModule(LightningModule):
 
     def on_train_epoch_end(self):
         pass
+
+    def on_train_epoch_start(self):
+        self.reset_metrics()
 
     def validation_step(self, batch: Any, batch_idx: int) -> None:
         loss, preds, targets = self.model_step(batch)

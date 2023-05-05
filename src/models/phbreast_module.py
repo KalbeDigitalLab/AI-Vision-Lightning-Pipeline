@@ -53,7 +53,10 @@ class PHBreastLitModule(LightningModule):
         super().__init__()
 
         if optimizer_type.lower() not in ['adam', 'sgd']:
-            raise ValueError('Optimizer {} is not supported. Only [Adam, SGD] is supported.')
+            raise ValueError('Optimizer {} is not supported. Only [Adam, SGD] are supported.')
+        if isinstance(scheduler_type, str) and scheduler_type.lower() not in ['lambda', 'multiplicative', 'cosine', 'cosine_restart']:
+            raise ValueError(
+                'Scheduler {} is not supported. Only [Lambda, Multiplicative, Cosine, CosineRestart] are supported.')
         if task.lower() not in ['binary', 'multiclass']:
             raise ValueError('Task {} is not supported. Only [binary, multiclass] are supported.')
 
@@ -208,7 +211,33 @@ class PHBreastLitModule(LightningModule):
                 weight_decay=self.hparams.weight_decay,
             )
 
-        return {'optimizer': optimizer}
+        scheduler = None
+        max_steps = self.trainer.max_epochs
+        if self.hparams.scheduler_type is not None:
+            if self.hparams.scheduler_type.lower() == 'lambda':
+                def lmbda(epoch): return 0.95 ** epoch
+                scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lmbda)
+            elif self.hparams.scheduler_type.lower() == 'multiplicative':
+                def lmbda(epoch): return 0.9996 ** epoch
+                scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer, lr_lambda=lmbda)
+            elif self.hparams.scheduler_type.lower() == 'cosine':
+                scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max_steps, eta_min=0)
+            elif self.hparams.scheduler_type.lower() == 'cosine_restart':
+                scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                    optimizer, T_0=25, T_mult=1, eta_min=1e-8, last_epoch=-1)
+
+        if scheduler is not None:
+            return {
+                'optimizer': optimizer,
+                'lr_scheduler': {
+                    'scheduler': scheduler,
+                    'monitor': 'val/loss',
+                    'interval': 'epoch',
+                    'frequency': 1,
+                },
+            }
+        else:
+            return {'optimizer': optimizer}
 
 
 if __name__ == '__main__':

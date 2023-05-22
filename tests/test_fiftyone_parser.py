@@ -21,6 +21,15 @@ def quickstart_dataset_path(tmp_path_factory):
     return dataset_dir
 
 
+@pytest.fixture(scope='session', autouse=True)
+def torch_mnist_dataset_path(tmp_path_factory):
+    """Download quickstart dataset."""
+    temp_dir = tmp_path_factory.mktemp('temp_quickstart_dataset')
+    _, dataset_dir = fiftyone.zoo.download_zoo_dataset(
+        'mnist', dataset_dir=str(temp_dir))
+    return dataset_dir
+
+
 def test_valid_dataset(quickstart_dataset_path):
     dataset = QuickstartDataset(path=quickstart_dataset_path)
 
@@ -43,3 +52,8 @@ def test_invalid_empty_dataset(quickstart_dataset_path):
         _ = QuickstartDataset(path=quickstart_dataset_path)
 
     assert str(exc_info.value) == 'The dataset has 0 samples.'
+
+
+def test_invalid_type_dataset(torch_mnist_dataset_path):
+    with pytest.raises(Exception) as exec_info:
+        _ = QuickstartDataset(path=torch_mnist_dataset_path)

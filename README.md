@@ -133,3 +133,7 @@ You can override any parameter from command line like this
 ```bash
 python src/train.py trainer.max_epochs=20 data.batch_size=64
 ```
+
+## Contributing
+
+To learn about making a contribution to KalbeDigitalLab, please see our [Contribution page](CONTRIBUTING.md).

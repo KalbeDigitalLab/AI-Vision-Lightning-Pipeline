@@ -7,26 +7,23 @@ from torchmetrics.classification.accuracy import Accuracy
 
 
 class MNISTBreastLitModule(LightningModule):
-    """Example of LightningModule for MNIST classification.
-
-    A LightningModule organizes your PyTorch code into 6 sections:
-        - Initialization (__init__)
-        - Train Loop (training_step)
-        - Validation loop (validation_step)
-        - Test loop (test_step)
-        - Prediction Loop (predict_step)
-        - Optimizers and LR Schedulers (configure_optimizers)
-
-    Docs:
-        https://lightning.ai/docs/pytorch/latest/common/lightning_module.html
-    """
-
     def __init__(
         self,
         net: torch.nn.Module,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
     ):
+        """MNIST Lightining Module for Breast Classification.
+
+        Parameters
+        ----------
+        net : torch.nn.Module
+            _description_
+        optimizer : torch.optim.Optimizer
+            _description_
+        scheduler : torch.optim.lr_scheduler
+            _description_
+        """
         super().__init__()
 
         # this line allows to access init params with 'self.hparams' attribute

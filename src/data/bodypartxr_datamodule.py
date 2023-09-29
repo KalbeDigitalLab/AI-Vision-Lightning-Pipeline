@@ -29,7 +29,9 @@ class VinDrBodyPartXRDatamodule(LightningDataModule):
 
     def __init__(
         self,
-        data_dir: str = '/data',
+        train_dir: str = '/data',
+        val_dir: str = '/data',
+        test_dir: str = '/data',
         input_size: Tuple[int, int] = (384, 384),
         batch_size: int = 32,
         num_workers: int = 0,
@@ -58,7 +60,9 @@ class VinDrBodyPartXRDatamodule(LightningDataModule):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.50807575], std=[0.20823])])
 
-        self.ds = data_dir
+        self.ds_train = train_dir
+        self.ds_val = val_dir
+        self.ds_test = test_dir
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
@@ -93,24 +97,24 @@ class VinDrBodyPartXRDatamodule(LightningDataModule):
         """Load the data with specified stage."""
         if stage in ['train', 'fit', None] and self.data_train is None:
             self.data_train = VinDrBodyPartXRDataset(
-                ds=self.ds, stage='train', transform=self.train_transforms)
+                dataset_dir=self.ds_train, transform=self.train_transforms)
             if len(self.data_train) == 0:
                 raise ValueError('Train dataset is empty.')
         if stage in ['validation', 'test', 'fit', None]:
             if self.data_val is None:
                 self.data_val = VinDrBodyPartXRDataset(
-                    ds=self.ds, stage='val', transform=self.val_transforms)
+                    dataset_dir=self.ds_val, transform=self.val_transforms)
                 if len(self.data_val) == 0:
                     raise ValueError('Validation dataset is empty.')
             if self.data_test is None:
                 self.data_test = VinDrBodyPartXRDataset(
-                    ds=self.ds, stage='test', transform=self.val_transforms)
+                    dataset_dir=self.ds_test, transform=self.val_transforms)
                 if len(self.data_test) == 0:
                     raise ValueError('Test dataset is empty.')
         if stage == 'predict':
             if self.data_test is None:
                 self.data_predict = VinDrBodyPartXRDataset(
-                    ds=self.ds, stage='test', transform=self.val_transforms)
+                    dataset_dir=self.ds_test, transform=self.val_transforms)
                 if len(self.data_predict) == 0:
                     raise ValueError('Predict dataset is empty.')
 

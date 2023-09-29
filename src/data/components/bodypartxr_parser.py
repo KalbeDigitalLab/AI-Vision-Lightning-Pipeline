@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-import hub
+import deeplake
 import numpy as np
 import torch
 import torchvision
@@ -14,16 +14,12 @@ class VinDrBodyPartXRDataset(Dataset):
         Dataset (_type_): _description_
     """
 
-    def __init__(self, transform: Optional[torchvision.transforms.Compose] = None, ds=None, stage: str = 'train'):
-        if stage == 'train':
-            self.ds = hub.load(ds + 'train', read_only=True)
-        elif stage == 'val':
-            self.ds = hub.load(ds + 'val', read_only=True)
-        elif stage == 'test':
-            self.ds = hub.load(ds + 'test', read_only=True)
-        else:
-            print(
-                'Invalid Stage Input. There is no dataset with a corresponding dataset on ActiveLoop')
+    def __init__(self, transform: Optional[torchvision.transforms.Compose] = None, dataset_dir: Optional[str] = None):
+        # for split in ['train', 'val', 'test']:
+        #     if split in dataset_dir:
+        #         dataset_dir = dataset_dir.replace(split, stage)
+
+        self.ds = deeplake.load(dataset_dir)
         self.transform = transform
 
     def __len__(self) -> int:
@@ -38,11 +34,8 @@ class VinDrBodyPartXRDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-        # If no transformations, convert to C,H,W
-        # Normalize to [0,1]
+        # If no transformations
         if isinstance(image, np.ndarray):
-            # image = np.transpose(image, (1, 2, 0))
-            # image = torch.from_numpy()
-            image /= 255.0
+            image = torch.from_numpy(image).to(torch.float32)
 
         return image, torch.tensor(label, dtype=torch.int64)

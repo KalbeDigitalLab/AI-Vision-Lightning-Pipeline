@@ -15,8 +15,12 @@ class VinDrBodyPartXRDatamodule(LightningDataModule):
 
     Parameters
     ----------
-    data_dir : str, optional
-        Activeloop dataset directory, by default 'data/'
+    train_dir : str
+        Activeloop training dataset directory
+    val_dir : str
+        Activeloop validation dataset directory
+    test_dir : str
+        Activeloop testing dataset directory
     input_size : List[int], optional
         Input model size, by default [384, 384]
     batch_size : int, optional
@@ -29,9 +33,9 @@ class VinDrBodyPartXRDatamodule(LightningDataModule):
 
     def __init__(
         self,
-        train_dir: str = '/data',
-        val_dir: str = '/data',
-        test_dir: str = '/data',
+        train_dir: str,
+        val_dir: str,
+        test_dir: str,
         input_size: Tuple[int, int] = (384, 384),
         batch_size: int = 32,
         num_workers: int = 0,

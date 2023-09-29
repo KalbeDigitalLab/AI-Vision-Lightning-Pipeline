@@ -10,8 +10,12 @@ from torch.utils.data import Dataset
 class VinDrBodyPartXRDataset(Dataset):
     """VinDr Body Part XR Parser.
 
-    Args:
-        Dataset (_type_): _description_
+    Parameters
+    ----------
+    dataset_dir : str
+        Activeloop dataset directory
+    transform : Optional[torchvision.transforms.Compose], optional
+        Data augmentation pipeline, by default None
     """
 
     def __init__(self, transform: Optional[torchvision.transforms.Compose] = None, dataset_dir: Optional[str] = None):

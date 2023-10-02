@@ -1,6 +1,16 @@
-import torchvision.transforms as transforms
+import torchvision 
 import torch
 import deeplake
+from torch.utils.data import Dataset
+from typing import Any, Optional, Tuple
+import numpy as np
+import hub
+from tests.bc_dummy_dataset import (dummy_dataset, 
+                                    dummy_train_dataset, 
+                                    dummy_val_dataset, 
+                                    dummy_test_dataset
+                                    )
+
 
 class DeepLakeDataset(Dataset):
     """DeepLake Dataset
@@ -13,24 +23,30 @@ class DeepLakeDataset(Dataset):
         Data augmentation pipeline, by default None
     """
 
-    def __init__(self, transform: Optional[torchvision.transforms.Compose] = None, dataset = None):
-        self.dataset = dataset
+    def __init__(self, ds, transform: Optional[torchvision.transforms.Compose] = None, stage: str = 'train'):
         self.transform = transform
+        if isinstance(ds, str): 
+            self.ds = deeplake.load(ds) #path direct
+        elif isinstance(ds, deeplake.Dataset): 
+            self.ds = ds  #deeplake format
+        else: 
+            raise TypeError("Invalid Format")
 
     def __len__(self) -> int:
         """Get the number of samples in the dataset."""
-        return len(self.dataset)
+        return len(self.ds)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         """Get a sample for the given index."""
 
-        image = self.dataset.images[idx].numpy()    # Convert the deeplake tensor to numpy array
-        label = self.dataset.labels[idx].numpy(fetch_chunks = True).astype(np.int32)
+        image = self.ds.images[idx].numpy()    # Convert the deeplake tensor to numpy array
+        label = self.ds.labels[idx].numpy(fetch_chunks = True).astype(np.int32)
 
         # Apply transformations
         if self.transform:
           image = self.transform(image)
-            # If image is in torch tensor format, convert to PIL Image
+          
+        #normalize to [0, 1]
         if isinstance(image, np.ndarray):
           image /=255.0
 

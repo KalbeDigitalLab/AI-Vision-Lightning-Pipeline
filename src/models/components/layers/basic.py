@@ -4,18 +4,28 @@ import torch
 import torch.nn as nn
 
 class BasicBlock(nn.Module):
-    """ResNet Basic Block.
+    """
+    ResNet Basic Block.
+
+    This class defines a basic building block for ResNet architectures. It consists of two convolutional
+    layers with batch normalization and a ReLU activation function. Optionally, it can include an
+    identity downsample layer to match the dimensions of the input and output when the stride is not 1.
 
     Parameters
     ----------
     in_channels : int
-        Number of input channels
+        Number of input channels.
     out_channels : int
-        Number of output channels
+        Number of output channels.
     stride : int, optional
-        Convolution stride size, by default 1
+        Convolution stride size, by default 1.
     identity_downsample : Optional[torch.nn.Module], optional
-        Downsampling layer, by default None
+        Downsampling layer, by default None.
+
+    Methods
+    -------
+    forward(x: torch.Tensor) -> torch.Tensor:
+        Apply forward computation.
     """
 
     def __init__(self,
@@ -57,14 +67,23 @@ class BasicBlock(nn.Module):
         return x
 
 class ResNet18(nn.Module):
-    """Construct ResNet-18 Model.
+    """
+    Construct ResNet-18 Model.
+
+    This class defines the ResNet-18 architecture, including convolutional layers, basic blocks, and
+    fully connected layers for classification.
 
     Parameters
     ----------
     input_channels : int
-        Number of input channels
+        Number of input channels.
     num_classes : int
-        Number of class outputs
+        Number of class outputs.
+
+    Methods
+    -------
+    forward(x: torch.Tensor) -> torch.Tensor:
+        Apply forward computation.
     """
 
     def __init__(self, input_channels, num_classes):

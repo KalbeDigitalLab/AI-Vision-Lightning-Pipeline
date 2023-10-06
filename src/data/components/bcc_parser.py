@@ -13,7 +13,8 @@ from tests.bc_dummy_dataset import (dummy_dataset,
 
 
 class DeepLakeDataset(Dataset):
- """DeepLake Dataset
+    """
+    DeepLake Dataset
 
     This class is a PyTorch Dataset wrapper for DeepLake datasets, allowing you
     to easily integrate them into your PyTorch-based machine learning pipelines.
@@ -45,7 +46,6 @@ class DeepLakeDataset(Dataset):
     __getitem__(idx)
         Get a sample for the given index.
     """
-
     def __init__(self, ds, transform: Optional[torchvision.transforms.Compose] = None):
         """
         Initialize a DeepLakeDataset object.

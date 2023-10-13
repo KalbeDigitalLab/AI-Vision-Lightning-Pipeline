@@ -144,6 +144,7 @@ def test_train_epoch_double_val_loop(cfg_phcresnet18, inbreast_2views_single_dat
     train(cfg_phcresnet18)
 
 
+@RunIf(min_cpus=2)
 @pytest.mark.slow
 def test_train_ddp_sim(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Simulate DDP (Distributed Data Parallel) on 2 CPU processes."""

@@ -40,6 +40,7 @@ class RunIf:
 
     def __new__(
         self,
+        min_cpus: int = 0,
         min_gpus: int = 0,
         min_torch: Optional[str] = None,
         max_torch: Optional[str] = None,
@@ -75,6 +76,10 @@ class RunIf:
         """
         conditions = []
         reasons = []
+
+        if min_cpus:
+            conditions.append(torch.cpu.device_count() < min_cpus)
+            reasons.append(f'CPUs>={min_cpus}')
 
         if min_gpus:
             conditions.append(torch.cuda.device_count() < min_gpus)

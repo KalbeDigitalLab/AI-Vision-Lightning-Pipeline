@@ -110,7 +110,7 @@ def test_train_epoch_double_val_loop(cfg_phcresnet18, vindr_2views_mammography_s
     train(cfg_phcresnet18)
 
 
-@RunIf(mongod=True)
+@RunIf(mongod=True, min_cpus=2)
 @pytest.mark.slow
 def test_train_ddp_sim(cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Simulate DDP (Distributed Data Parallel) on 2 CPU processes."""

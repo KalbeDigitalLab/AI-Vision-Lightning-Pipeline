@@ -212,3 +212,40 @@ def cfg_physenet(cfg_physenet_global, tmp_path) -> DictConfig:
     yield cfg
 
     GlobalHydra.instance().clear()
+
+
+@pytest.fixture(scope='package')
+def cfg_bodyresnet_global() -> DictConfig:
+    with initialize(version_base='1.3', config_path='../configs'):
+        cfg = compose(config_name='train.yaml',
+                      return_hydra_config=True, overrides=['model=bodypartxr', 'data=bodypartxr'])
+
+        # set defaults for all tests
+        with open_dict(cfg):
+            cfg.paths.root_dir = str(
+                pyrootutils.find_root(indicator='.project-root'))
+            cfg.trainer.max_epochs = 1
+            cfg.trainer.accelerator = 'cpu'
+            cfg.trainer.devices = 1
+            cfg.data.input_size = [384, 384]
+            cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
+            cfg.data.pin_memory = False
+            cfg.extras.print_config = False
+            cfg.extras.enforce_tags = False
+            cfg.logger = None
+
+    return cfg
+
+
+@pytest.fixture(scope='function')
+def cfg_bodyresnet18(cfg_bodyresnet_global, tmp_path) -> DictConfig:
+    cfg = cfg_bodyresnet_global.copy()
+
+    with open_dict(cfg):
+        cfg.paths.output_dir = str(tmp_path)
+        cfg.paths.log_dir = str(tmp_path)
+        cfg.model.net._target_ = 'src.models.components.resnet18.ResNet18'
+    yield cfg
+
+    GlobalHydra.instance().clear()

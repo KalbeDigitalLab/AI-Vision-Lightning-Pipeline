@@ -70,6 +70,7 @@ def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, inbreast_4views_mu
     train(cfg_physenet)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_none_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -81,6 +82,7 @@ def test_train_sch_none_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single
     train(cfg_phcresnet18)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_lambda_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -92,6 +94,7 @@ def test_train_sch_lambda_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_sing
     train(cfg_phcresnet18)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_cosine_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)

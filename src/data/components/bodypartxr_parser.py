@@ -8,7 +8,13 @@ from torch.utils.data import Dataset
 
 
 class VinDrBodyPartXRDataset(Dataset):
-    """VinDr Body Part XR Parser.
+    """VinDr Body Part XR Parser. This dataset from VinBigData contains x-ray imaging from 5
+    different class in DICOM format.
+
+    The dataset is stored using ActiveLoop for easy integration.
+
+    Dataset source: https://vindr.ai/datasets/bodypartxr
+    ActiveLoop: https://app.activeloop.ai/
 
     Parameters
     ----------
@@ -19,10 +25,6 @@ class VinDrBodyPartXRDataset(Dataset):
     """
 
     def __init__(self, transform: Optional[torchvision.transforms.Compose] = None, dataset_dir: Optional[str] = None):
-        # for split in ['train', 'val', 'test']:
-        #     if split in dataset_dir:
-        #         dataset_dir = dataset_dir.replace(split, stage)
-
         self.ds = deeplake.load(dataset_dir)
         self.transform = transform
 

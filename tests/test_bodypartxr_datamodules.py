@@ -2,12 +2,16 @@ import pytest
 import torch
 
 from src.data.bodypartxr_datamodule import VinDrBodyPartXRDatamodule
-from tests.dummy_bodypartxr_dataset import dummy_test_dataset, dummy_train_dataset, dummy_val_dataset
+from tests.dummy_dataset import (
+    bodypartxr_dummy_test_dataset_dir,
+    bodypartxr_dummy_train_dataset_dir,
+    bodypartxr_dummy_val_dataset_dir,
+)
 
 
-def test_bodypartxr_datamodule(dummy_train_dataset, dummy_val_dataset, dummy_test_dataset):
+def test_bodypartxr_datamodule(bodypartxr_dummy_train_dataset_dir, bodypartxr_dummy_val_dataset_dir, bodypartxr_dummy_test_dataset_dir):
     dm = VinDrBodyPartXRDatamodule(
-        train_dir=dummy_train_dataset, val_dir=dummy_val_dataset, test_dir=dummy_test_dataset, batch_size=4)
+        train_dir=bodypartxr_dummy_train_dataset_dir, val_dir=bodypartxr_dummy_val_dataset_dir, test_dir=bodypartxr_dummy_test_dataset_dir, batch_size=4)
 
     assert not dm.data_train and not dm.data_val and not dm.data_test
 

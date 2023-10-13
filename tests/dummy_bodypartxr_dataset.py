@@ -8,6 +8,18 @@ import pytest
 
 @pytest.fixture(scope='session')
 def dummy_train_dataset(tmp_path_factory):
+    """Dummy Train Dataset for VinDrBodyPartXR.
+
+    Creating dummy train dataset in ActiveLoop using tmp_path_factory fixture in pytest
+    Reference: https://docs.pytest.org/en/7.1.x/how-to/tmp_path.html#the-tmp-path-factory-fixture
+
+    Classification label = ['abdominal', 'adult', 'pediatric', 'spine', 'others'],
+    Number of samples: 50,
+    Image size: (512, 512),
+
+    Returns:
+        root_dir: directory to the ActiveLoop dataset
+    """
     label_img = ['abdominal', 'adult', 'pediatric', 'spine', 'others']
 
     root_dir = tmp_path_factory.mktemp('dummy_bodypartxr_dataset_train')
@@ -35,6 +47,18 @@ def dummy_train_dataset(tmp_path_factory):
 
 @pytest.fixture(scope='session')
 def dummy_val_dataset(tmp_path_factory):
+    """Dummy Validation Dataset for VinDrBodyPartXR.
+
+    Creating dummy validation dataset in ActiveLoop using tmp_path_factory fixture in pytest
+    Reference: https://docs.pytest.org/en/7.1.x/how-to/tmp_path.html#the-tmp-path-factory-fixture
+
+    Classification label = ['abdominal', 'adult', 'pediatric', 'spine', 'others'],
+    Number of samples: 30,
+    Image size: (512, 512),
+
+    Returns:
+        root_dir: directory to the ActiveLoop dataset
+    """
     label_img = ['abdominal', 'adult', 'pediatric', 'spine', 'others']
 
     root_dir = tmp_path_factory.mktemp('dummy_bodypartxr_dataset_val')
@@ -63,6 +87,18 @@ def dummy_val_dataset(tmp_path_factory):
 
 @pytest.fixture(scope='session')
 def dummy_test_dataset(tmp_path_factory):
+    """Dummy Test Dataset for VinDrBodyPartXR.
+
+    Creating dummy test dataset in ActiveLoop using tmp_path_factory fixture in pytest
+    Reference: https://docs.pytest.org/en/7.1.x/how-to/tmp_path.html#the-tmp-path-factory-fixture
+
+    Classification label = ['abdominal', 'adult', 'pediatric', 'spine', 'others'],
+    Number of samples: 25,
+    Image size: (512, 512),
+
+    Returns:
+        root_dir: directory to the ActiveLoop dataset
+    """
     label_img = ['abdominal', 'adult', 'pediatric', 'spine', 'others']
 
     root_dir = tmp_path_factory.mktemp('dummy_bodypartxr_dataset_test')

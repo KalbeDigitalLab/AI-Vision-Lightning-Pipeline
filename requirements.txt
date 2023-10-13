@@ -30,4 +30,5 @@ pyrootutils     # standardizing the project root setup
 pytest          # tests
 fiftyone        # fiftyone dataset
 xxhash          # hash code for testings
+deeplake        # create and load datasets
 # sh            # for running bash commands in some tests (linux/macos only)

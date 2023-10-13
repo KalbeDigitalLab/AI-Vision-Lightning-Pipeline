@@ -17,6 +17,7 @@ from tests.helpers.package_available import (
     _FAIRSCALE_AVAILABLE,
     _IS_WINDOWS,
     _MLFLOW_AVAILABLE,
+    _MONGOD_AVAILABLE,
     _NEPTUNE_AVAILABLE,
     _SH_AVAILABLE,
     _TPU_AVAILABLE,
@@ -52,6 +53,7 @@ class RunIf:
         neptune: bool = False,
         comet: bool = False,
         mlflow: bool = False,
+        mongod: bool = False,
         **kwargs,
     ):
         """
@@ -130,6 +132,10 @@ class RunIf:
         if mlflow:
             conditions.append(not _MLFLOW_AVAILABLE)
             reasons.append('mlflow')
+
+        if mongod:
+            conditions.append(not _MONGOD_AVAILABLE)
+            reasons.append('mongod')
 
         reasons = [rs for cond, rs in zip(conditions, reasons) if cond]
         return pytest.mark.skipif(

@@ -195,6 +195,7 @@ def test_experiments(tmp_path, inbreast_2views_single_dataset_path):
         'experiment=phbreast_inbreast_phcresnet18_2views',
         'hydra.sweep.dir=' + str(tmp_path),
         'paths.data_dir=' + inbreast_2views_single_dataset_path,
+        'data.batch_size=2',
         '++trainer.fast_dev_run=true',
         '++data.input_size=[300,250]',
     ] + overrides
@@ -212,6 +213,7 @@ def test_hydra_sweep(tmp_path, inbreast_2views_single_dataset_path):
         'model=phcresnet',
         'data=phbreast',
         'data.num_views=2',
+        'data.batch_size=2',
         'data.input_size=[300,250]',
         'model.lr=0.005,0.01',
         'paths.data_dir=' + inbreast_2views_single_dataset_path,
@@ -233,6 +235,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, inbreast_2views_single_dataset_path):
         'model=phcresnet',
         'data=phbreast',
         'data.num_views=2',
+        'data.batch_size=2',
         'data.input_size=[300,250]',
         'trainer=ddp_sim',
         'trainer.max_epochs=3',

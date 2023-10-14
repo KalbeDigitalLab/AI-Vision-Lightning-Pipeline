@@ -203,6 +203,7 @@ def test_experiments(tmp_path, inbreast_2views_single_dataset_path):
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Unable to run in Github Actions.')
 @pytest.mark.slow
 def test_hydra_sweep(tmp_path, inbreast_2views_single_dataset_path):
     """Test default hydra sweep."""
@@ -246,6 +247,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, inbreast_2views_single_dataset_path):
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Unable to run in Github Actions.')
 @pytest.mark.slow
 def test_optuna_sweep(tmp_path, inbreast_2views_single_dataset_path):
     """Test optuna sweep."""

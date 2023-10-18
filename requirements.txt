@@ -31,6 +31,6 @@ pytest          # tests
 fiftyone        # fiftyone dataset
 xxhash          # hash code for testings
 deeplake        # create and load datasets
-opencv-python-headless<4.6.0
+opencv-python-headless<4.9.0
 Pillow>=10.0.0
 # sh            # for running bash commands in some tests (linux/macos only)

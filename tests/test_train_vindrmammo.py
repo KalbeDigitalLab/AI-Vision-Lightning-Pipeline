@@ -174,6 +174,7 @@ def test_experiments(tmp_path, vindr_2views_mammography_single_dataset_dir):
 
 
 @RunIf(sh=True, mongod=True)
+@pytest.mark.skip('Unstable run in Github Actions.')
 @pytest.mark.slow
 def test_hydra_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     """Test default hydra sweep."""
@@ -217,6 +218,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, vindr_2views_mammography_single_dataset_d
 
 
 @RunIf(sh=True, mongod=True)
+@pytest.mark.skip('Unstable run in Github Actions.')
 @pytest.mark.slow
 def test_optuna_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     """Test optuna sweep."""

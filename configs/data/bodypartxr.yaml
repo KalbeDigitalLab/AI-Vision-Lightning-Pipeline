@@ -1,7 +1,7 @@
 _target_: src.data.bodypartxr_datamodule.VinDrBodyPartXRDatamodule
-data_dir: ${paths.data_dir}
-# val_dir: ${paths.data_dir}
-# test_dir: ${paths.data_dir}
+train_dir: ${paths.train_dir}
+val_dir: ${paths.val_dir}
+test_dir: ${paths.test_dir}
 input_size: [384, 384]
 batch_size: 32
 num_workers: 2

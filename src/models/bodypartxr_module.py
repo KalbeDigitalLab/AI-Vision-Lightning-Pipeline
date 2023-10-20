@@ -7,16 +7,19 @@ from lightning import LightningModule
 
 
 class BodyPartXRLitModule(LightningModule):
-    """Model training pipeline for Food101 classification.
+    """LightningModule for Body Part X-ray Classification.
 
     Parameters
     ----------
     net : torch.nn.Module
         The model module or configuration
     num_classes : int, optional
-        Number of output classes, by default 10
+        Number of output classes, by default 5
     lr : float, optional
         Optimizer learning rate, by default 0.00001
+
+    Docs:
+        https://lightning.ai/docs/pytorch/latest/common/lightning_module.html
     """
 
     def __init__(

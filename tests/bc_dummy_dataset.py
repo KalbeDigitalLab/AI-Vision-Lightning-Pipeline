@@ -5,11 +5,12 @@ import deeplake
 import numpy as np
 import pytest
 
+
 @pytest.fixture(scope='session')
-def dummy_dataset(tmp_path_factory):
+def deeplake_dummy_dataset_dir(tmp_path_factory):
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset')
+    root_dir = tmp_path_factory.mktemp('temp_deeplake_dummy_dataset')
 # image, label
 
     num_samples = 30
@@ -36,11 +37,12 @@ def dummy_dataset(tmp_path_factory):
 
     return str(root_dir)
 
+
 @pytest.fixture(scope='session')
-def dummy_train_dataset(tmp_path_factory):
+def deeplake_dummy_train_dataset_dir(tmp_path_factory):
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_train')
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_train')
 
     num_samples = 547
     ds = deeplake.dataset(root_dir)
@@ -64,10 +66,10 @@ def dummy_train_dataset(tmp_path_factory):
 
 
 @pytest.fixture(scope='session')
-def dummy_val_dataset(tmp_path_factory):
+def deeplake_dummy_val_dataset_dir(tmp_path_factory):
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_val')
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_val')
 # image, label
 
     num_samples = 233
@@ -92,10 +94,10 @@ def dummy_val_dataset(tmp_path_factory):
 
 
 @pytest.fixture(scope='session')
-def dummy_test_dataset(tmp_path_factory):
+def deeplake_dummy_test_dataset_dir(tmp_path_factory):
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_test')
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_test')
 
     num_samples = 155
     ds = deeplake.dataset(root_dir)

@@ -9,8 +9,10 @@ from tests.dummy_dataset import (
     vindr_4views_mammography_multi_dataset_dir,
     vindr_4views_mammography_single_dataset_dir,
 )
+from tests.helpers.run_if import RunIf
 
 
+@RunIf(mongod=True)
 def test_load_singlehead_2views_dataset(vindr_2views_mammography_single_dataset_dir):
     fo_dataset = VinDrMammographyDataset(num_views=2, output_type='single',
                                          path=vindr_2views_mammography_single_dataset_dir)
@@ -25,6 +27,7 @@ def test_load_singlehead_2views_dataset(vindr_2views_mammography_single_dataset_
     assert len(study_ids) == 2
 
 
+@RunIf(mongod=True)
 def test_load_singlehead_4views_dataset(vindr_4views_mammography_single_dataset_dir):
     fo_dataset = VinDrMammographyDataset(num_views=4, output_type='single',
                                          path=vindr_4views_mammography_single_dataset_dir)
@@ -39,6 +42,7 @@ def test_load_singlehead_4views_dataset(vindr_4views_mammography_single_dataset_
     assert len(study_ids) == 4
 
 
+@RunIf(mongod=True)
 def test_singlehead_4views_dataset_transforms(vindr_4views_mammography_single_dataset_dir):
     augmentation = transforms.Compose([
         transforms.Resize((600, 500)),
@@ -57,12 +61,14 @@ def test_singlehead_4views_dataset_transforms(vindr_4views_mammography_single_da
     assert len(study_ids) == 4
 
 
+@RunIf(mongod=True)
 def test_dataset_empty(empty_dataset_dir):
     with pytest.raises(Exception) as e_info:
         _ = VinDrMammographyDataset(num_views=4, output_type='single', path=empty_dataset_dir)
         assert e_info == 'The dataset has 0 samples.'
 
 
+@RunIf(mongod=True)
 def test_load_multihead_4views_dataset(vindr_4views_mammography_multi_dataset_dir):
     fo_dataset = VinDrMammographyDataset(num_views=4, output_type='multiple',
                                          path=vindr_4views_mammography_multi_dataset_dir)

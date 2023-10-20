@@ -4,6 +4,7 @@ import fiftyone
 import pytest
 
 from src.data.components.fiftyone_parser import FiftyOneDatasetParser
+from tests.helpers.run_if import RunIf
 
 
 class QuickstartDataset(FiftyOneDatasetParser):
@@ -12,6 +13,7 @@ class QuickstartDataset(FiftyOneDatasetParser):
         return sample['filepath']
 
 
+@RunIf(mongod=True)
 @pytest.fixture(scope='session', autouse=True)
 def quickstart_dataset_path(tmp_path_factory):
     """Download quickstart dataset."""
@@ -21,6 +23,7 @@ def quickstart_dataset_path(tmp_path_factory):
     return dataset_dir
 
 
+@RunIf(mongod=True)
 @pytest.fixture(scope='session', autouse=True)
 def torch_mnist_dataset_path(tmp_path_factory):
     """Download quickstart dataset."""

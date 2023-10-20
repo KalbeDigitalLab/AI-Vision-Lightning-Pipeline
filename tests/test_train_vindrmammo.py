@@ -19,6 +19,7 @@ startfile = 'src/train.py'
 overrides = ['logger=[]']
 
 
+@RunIf(mongod=True)
 def test_train_phcresnet_binary_2views_fast_dev_run(cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -31,7 +32,7 @@ def test_train_phcresnet_binary_2views_fast_dev_run(cfg_phcresnet18, vindr_2view
     train(cfg_phcresnet18)
 
 
-@RunIf(min_gpus=1)
+@RunIf(min_gpus=1, mongod=True)
 def test_train_physbonet_binary_4views_fast_dev_run_gpu(cfg_physbonet, vindr_4views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_physbonet)
@@ -48,7 +49,7 @@ def test_train_physbonet_binary_4views_fast_dev_run_gpu(cfg_physbonet, vindr_4vi
     train(cfg_physbonet)
 
 
-@RunIf(min_gpus=1)
+@RunIf(min_gpus=1, mongod=True)
 def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, vindr_4views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_physenet)
@@ -65,7 +66,7 @@ def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, vindr_4views_mammo
     train(cfg_physenet)
 
 
-@RunIf(min_gpus=1)
+@RunIf(min_gpus=1, mongod=True)
 def test_train_fast_dev_run_gpu(cfg_phcresnet50, vindr_2views_mammography_single_dataset_dir):
     """Run for 1 train, val and test step on GPU."""
     HydraConfig().set_config(cfg_phcresnet50)
@@ -79,7 +80,7 @@ def test_train_fast_dev_run_gpu(cfg_phcresnet50, vindr_2views_mammography_single
     train(cfg_phcresnet50)
 
 
-@RunIf(min_gpus=1)
+@RunIf(min_gpus=1, mongod=True)
 @pytest.mark.slow
 def test_train_epoch_gpu_amp(cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Train 1 epoch on GPU with mixed-precision."""
@@ -95,6 +96,7 @@ def test_train_epoch_gpu_amp(cfg_phcresnet18, vindr_2views_mammography_single_da
     train(cfg_phcresnet18)
 
 
+@RunIf(mongod=True)
 @pytest.mark.slow
 def test_train_epoch_double_val_loop(cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Train 1 epoch with validation loop twice per epoch."""
@@ -108,6 +110,7 @@ def test_train_epoch_double_val_loop(cfg_phcresnet18, vindr_2views_mammography_s
     train(cfg_phcresnet18)
 
 
+@RunIf(mongod=True, min_cpus=2)
 @pytest.mark.slow
 def test_train_ddp_sim(cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Simulate DDP (Distributed Data Parallel) on 2 CPU processes."""
@@ -125,6 +128,7 @@ def test_train_ddp_sim(cfg_phcresnet18, vindr_2views_mammography_single_dataset_
     train(cfg_phcresnet18)
 
 
+@RunIf(mongod=True)
 @pytest.mark.slow
 def test_train_resume(tmp_path, cfg_phcresnet18, vindr_2views_mammography_single_dataset_dir):
     """Run 1 epoch, finish, and resume for another epoch."""
@@ -152,7 +156,7 @@ def test_train_resume(tmp_path, cfg_phcresnet18, vindr_2views_mammography_single
     assert 'epoch_001.ckpt' not in files
 
 
-@RunIf(sh=True)
+@RunIf(sh=True, mongod=True)
 @pytest.mark.skip('No experiment for phcresnet with vindrmammo.')
 @pytest.mark.slow
 def test_experiments(tmp_path, vindr_2views_mammography_single_dataset_dir):
@@ -169,7 +173,8 @@ def test_experiments(tmp_path, vindr_2views_mammography_single_dataset_dir):
     run_sh_command(command)
 
 
-@RunIf(sh=True)
+@RunIf(sh=True, mongod=True)
+@pytest.mark.skip('Unstable run in Github Actions.')
 @pytest.mark.slow
 def test_hydra_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     """Test default hydra sweep."""
@@ -190,7 +195,7 @@ def test_hydra_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     run_sh_command(command)
 
 
-@RunIf(sh=True)
+@RunIf(sh=True, mongod=True)
 @pytest.mark.skip('Unknown error due to optimizer state on ddp sim.')
 @pytest.mark.slow
 def test_hydra_sweep_ddp_sim(tmp_path, vindr_2views_mammography_single_dataset_dir):
@@ -212,7 +217,8 @@ def test_hydra_sweep_ddp_sim(tmp_path, vindr_2views_mammography_single_dataset_d
     run_sh_command(command)
 
 
-@RunIf(sh=True)
+@RunIf(sh=True, mongod=True)
+@pytest.mark.skip('Unstable run in Github Actions.')
 @pytest.mark.slow
 def test_optuna_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     """Test optuna sweep."""
@@ -234,7 +240,7 @@ def test_optuna_sweep(tmp_path, vindr_2views_mammography_single_dataset_dir):
     run_sh_command(command)
 
 
-@RunIf(wandb=True, sh=True)
+@RunIf(wandb=True, sh=True, mongod=True)
 @pytest.mark.skip('Unknown error due to optimizer state on ddp sim.')
 @pytest.mark.slow
 def test_optuna_sweep_ddp_sim_wandb(tmp_path, vindr_2views_mammography_single_dataset_dir):

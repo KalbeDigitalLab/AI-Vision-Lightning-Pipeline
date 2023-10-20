@@ -9,8 +9,10 @@ from tests.dummy_dataset import (
     vindr_4views_mammography_multi_dataset_dir,
     vindr_4views_mammography_single_dataset_dir,
 )
+from tests.helpers.run_if import RunIf
 
 
+@RunIf(mongod=True)
 def test_catch_invalid_input(vindr_2views_mammography_single_dataset_dir):
     with pytest.raises(Exception) as e_info:
         _ = VinDrLitDatamodule(
@@ -22,6 +24,7 @@ def test_catch_invalid_input(vindr_2views_mammography_single_dataset_dir):
         assert e_info == 'Unsupported output type singular. Only [single. multiple] are supported'
 
 
+@RunIf(mongod=True)
 def test_vindr_2views_singlehead_datamodule(vindr_2views_mammography_single_dataset_dir):
     dm = VinDrLitDatamodule(
         data_dir=vindr_2views_mammography_single_dataset_dir,
@@ -45,6 +48,7 @@ def test_vindr_2views_singlehead_datamodule(vindr_2views_mammography_single_data
     assert breast_classes.dtype == torch.int64
 
 
+@RunIf(mongod=True)
 def test_vindr_4views_singlehead_datamodule(vindr_4views_mammography_single_dataset_dir):
     dm = VinDrLitDatamodule(
         data_dir=vindr_4views_mammography_single_dataset_dir,
@@ -68,6 +72,7 @@ def test_vindr_4views_singlehead_datamodule(vindr_4views_mammography_single_data
     assert breast_classes.dtype == torch.int64
 
 
+@RunIf(mongod=True)
 def test_vindr_4views_multihead_datamodule(vindr_4views_mammography_multi_dataset_dir):
     dm = VinDrLitDatamodule(
         data_dir=vindr_4views_mammography_multi_dataset_dir,

@@ -1,0 +1,5 @@
+target: src.data.bcc_datamodule.DeepLakeLitDataModule
+data_dir:
+batch_size: 16
+num_workers: 4
+pin_memory: False

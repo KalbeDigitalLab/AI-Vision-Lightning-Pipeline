@@ -85,9 +85,22 @@ class BreastCancerDataModule(LightningDataModule):
 
     @property
     def num_clasess(self):
+        """Get the number of classes, which is 3 for Breast Cancer classification.
+
+        Returns:
+            int: The number of classes, which is 3 for Breast Cancer classification.
+        """
         return 3
 
     def setup(self, stage: Optional[str] = None):
+        """Load the data for the specified stage (train, validation, test, or predict).
+
+        Args:
+            stage (str, optional): The stage for which data should be loaded. It can be one of 'train', 'validation', 'test', or 'predict'. If 'predict', it loads data for making predictions. Defaults to None.
+
+        Raises:
+            ValueError: If the dataset for a specified stage is empty.
+        """
         if stage in ['train', 'fit', None] and self.data_train is None:
             self.data_train = DeepLakeDataset(
                 data_dir=self.ds_train,

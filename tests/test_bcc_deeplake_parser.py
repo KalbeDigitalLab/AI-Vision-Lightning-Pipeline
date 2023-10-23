@@ -1,3 +1,4 @@
+import deeplake
 import pytest
 import torch
 import torchvision.transforms as transforms
@@ -77,3 +78,22 @@ def test_invalid_data_dir_type():
             transforms.ToTensor(),
             transforms.Normalize(mean=[0], std=[1])
         ]))
+
+
+def test_deeplake_data_type(deeplake_dummy_train_dataset_dir):
+    data_deeplake = deeplake.load(deeplake_dummy_train_dataset_dir)
+    dataset = DeepLakeDataset(data_dir=data_deeplake, transform=transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0], std=[1])
+    ]))
+
+    print(len(dataset))
+
+    image, label = dataset[10]
+    assert len(dataset) == 547
+    assert image.shape == (1, 256, 256)
+    assert isinstance(image, torch.Tensor)
+    assert isinstance(label, torch.Tensor)

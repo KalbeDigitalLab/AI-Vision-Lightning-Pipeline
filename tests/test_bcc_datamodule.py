@@ -10,6 +10,26 @@ from tests.bc_dummy_dataset import (
 
 
 def test_bc_classification_deeplake_lit_datamodule(deeplake_dummy_train_dataset_dir, deeplake_dummy_val_dataset_dir, deeplake_dummy_test_dataset_dir):
+    """Test the BreastCancerDataModule with Deeplake for Breast Cancer classification.
+
+    This test ensures that the `BreastCancerDataModule` can be set up with the provided Deeplake dataset paths and that the data can be loaded correctly.
+
+    Parameters:
+        deeplake_dummy_train_dataset_dir (str): The path to the dummy Breast Cancer train dataset.
+        deeplake_dummy_val_dataset_dir (str): The path to the dummy Breast Cancer validation dataset.
+        deeplake_dummy_test_dataset_dir (str): The path to the dummy Breast Cancer test dataset.
+
+    This test checks the following:
+    - The data module is properly set up with the provided dataset paths.
+    - The data is loaded successfully for training, validation, and testing.
+    - The data loaders return non-empty batches.
+    - The data types and shapes of the loaded data are as expected.
+
+    Args:
+        deeplake_dummy_train_dataset_dir (str): The path to the dummy Breast Cancer train dataset directory.
+        deeplake_dummy_val_dataset_dir (str): The path to the dummy Breast Cancer validation dataset directory.
+        deeplake_dummy_test_dataset_dir (str): The path to the dummy Breast Cancer test dataset directory.
+    """
     dm = BreastCancerDataModule(
         train_dir=deeplake_dummy_train_dataset_dir,
         val_dir=deeplake_dummy_val_dataset_dir,

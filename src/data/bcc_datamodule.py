@@ -9,34 +9,22 @@ from src.data.components.deeplake_parser import DeepLakeDataset
 
 
 class BreastCancerDataModule(LightningDataModule):
-    """
-    BreastCancerDataModule: A PyTorch Lightning Data Module for Breast Cancer Image Classification.
-
+    """ BreastCancerDataModule: A PyTorch Lightning Data Module for Breast Cancer Image Classification.
     This data module is designed to facilitate the preparation and loading of data for training, validation, and testing of a Breast Cancer Image Classification model. It supports loading data from both local directories (provided as strings) and deeplake datasets.
 
-    Attributes:
-        train_dir (Union[str, deeplake.dataset]): The directory path or deeplake dataset for the training data.
-        val_dir (Union[str, deeplake.dataset]): The directory path or deeplake dataset for the validation data.
-        test_dir (Union[str, deeplake.dataset]): The directory path or deeplake dataset for the test data.
-        input_size (Tuple[int, int]): The input image size as a tuple of (height, width). Defaults to (600, 500).
-        batch_size (int): The batch size for data loaders. Defaults to 64.
-        num_workers (int): The number of workers for data loading. Defaults to 0.
-        pin_memory (bool): Whether to pin memory during data loading. Defaults to False.
-
-    Methods:
-        num_classes(): Get the number of classes, which is 3 for Breast Cancer classification.
-        setup(stage: Optional[str] = None): Load the data for the specified stage (train, validation, test, or predict).
-        train_dataloader(): Get a DataLoader for the training data.
-        val_dataloader(): Get a DataLoader for the validation data.
-        test_dataloader(): Get a DataLoader for the test data.
-
-    Note:
-        This data module assumes that the dataset loader 'DeepLakeDataset' is available, and that it is compatible with both local directory paths and deeplake datasets.
+    Parameters:
+        train_dir: (Union[str, deeplake.dataset]): The directory containing the training data or a deeplake dataset.
+        val_dir (Union[str, deeplake.dataset]): The directory containing the validation data or a deeplake dataset.
+        test_dir (Union[str, deeplake.dataset]): The directory containing the test data or a deeplake dataset.
+        input_size (Tuple[int, int], optional): The size of the input images. Defaults to [600, 500].
+        batch_size (int, optional): The batch size to use for training, validation, and testing. Defaults to 64.
+        num_workers (int, optional): The number of workers to use for loading data. Defaults to 0.
+        pin_memory (bool, optional): Whether to pin memory when loading data. Defaults to False.
     """
 
     def __init__(
         self,
-        train_dir: Union[str, deeplake.dataset],  # allow for both str and deeplake.dataset
+        train_dir: Union[str, deeplake.dataset],
         val_dir: Union[str, deeplake.dataset],
         test_dir: Union[str, deeplake.dataset],
         input_size: Tuple[int, int] = [600, 500],
@@ -85,22 +73,15 @@ class BreastCancerDataModule(LightningDataModule):
 
     @property
     def num_clasess(self):
-        """Get the number of classes, which is 3 for Breast Cancer classification.
+        """Get the number of classes in the dataset.
 
         Returns:
-            int: The number of classes, which is 3 for Breast Cancer classification.
+            int: The number of classes in the dataset.
         """
         return 3
 
     def setup(self, stage: Optional[str] = None):
-        """Load the data for the specified stage (train, validation, test, or predict).
-
-        Args:
-            stage (str, optional): The stage for which data should be loaded. It can be one of 'train', 'validation', 'test', or 'predict'. If 'predict', it loads data for making predictions. Defaults to None.
-
-        Raises:
-            ValueError: If the dataset for a specified stage is empty.
-        """
+        """Setup the data module."""
         if stage in ['train', 'fit', None] and self.data_train is None:
             self.data_train = DeepLakeDataset(
                 data_dir=self.ds_train,

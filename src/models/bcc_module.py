@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import torch
 import torch.nn.functional as F
@@ -13,9 +13,9 @@ class ClassificationLightningModule(LightningModule):
     ----------
     net : torch.nn.Module
         The model module or configuration
-    num_classes : int, optional
+    num_classes : int
         Number of output classes, by default 10
-    lr : float, optional
+    lr : float
         Optimizer learning rate, by default 0.00001
     """
 
@@ -63,7 +63,7 @@ class ClassificationLightningModule(LightningModule):
 
     def model_step(self, batch: Any):
         images, targets = batch
-        targets = targets.squeeze().long() # convert to 1D
+        targets = targets.squeeze().long()  # convert to 1D
         logits = self.forward(images)
         loss = self.criterion(logits, targets)
         preds = F.softmax(logits, dim=1)
@@ -79,7 +79,6 @@ class ClassificationLightningModule(LightningModule):
 
         # return loss or backpropagation will fail
         return loss
-
 
     def on_train_epoch_start(self):
         self.reset_metrics()

@@ -10,8 +10,6 @@ from torch.utils.data import Dataset
 class DeepLakeDataset(Dataset):
     """DeepLakeDataset. A PyTorch Dataset Wrapper for DeepLake Datasets.
 
-    This class serves as a PyTorch Dataset wrapper for DeepLake datasets. It allows you to seamlessly integrate DeepLake datasets into your PyTorch-based machine learning pipelines.
-
     Parameters:
         data_dir (str or deeplake.Dataset): The DeepLake dataset object or the path to the dataset directory. If `data_dir` is a string, it should be the path to the DeepLake dataset directory. If `data_dir` is a deeplake.Dataset object, it represents the dataset directly.
         transform (Optional[torchvision.transforms.Compose], optional): A data augmentation pipeline to apply to the images. Defaults to None.
@@ -28,15 +26,6 @@ class DeepLakeDataset(Dataset):
     """
 
     def __init__(self, data_dir, transform: Optional[torchvision.transforms.Compose] = None):
-        """Initialize a DeepLakeDataset object.
-
-        Parameters:
-            data_dir (str or deeplake.Dataset): The DeepLake dataset object or the path to the dataset directory. If `data_dir` is a string, it should be the path to the DeepLake dataset directory. If `data_dir` is a deeplake.Dataset object, it represents the dataset directly.
-            transform (Optional[torchvision.transforms.Compose], optional): A data augmentation pipeline to apply to the images. Defaults to None.
-
-        Raises:
-            TypeError: If the `data_dir` parameter is neither a valid DeepLake dataset object nor a string.
-        """
         self.transform = transform
         if isinstance(data_dir, str):
             self.data_dir = deeplake.load(data_dir)  # path direct

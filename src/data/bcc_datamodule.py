@@ -10,7 +10,6 @@ from src.data.components.deeplake_parser import DeepLakeDataset
 
 class BreastCancerDataModule(LightningDataModule):
     """ BreastCancerDataModule: A PyTorch Lightning Data Module for Breast Cancer Image Classification.
-    This data module is designed to facilitate the preparation and loading of data for training, validation, and testing of a Breast Cancer Image Classification model. It supports loading data from both local directories (provided as strings) and deeplake datasets.
 
     Parameters:
         train_dir: (Union[str, deeplake.dataset]): The directory containing the training data or a deeplake dataset.

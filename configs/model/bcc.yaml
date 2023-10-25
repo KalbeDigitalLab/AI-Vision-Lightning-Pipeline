@@ -1,5 +1,4 @@
 _target_: src.models.bcc_module.ClassificationLightningModule
-
 num_classes: 3
 lr: 0.0001
 net:

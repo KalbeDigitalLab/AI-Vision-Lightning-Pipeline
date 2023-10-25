@@ -5,12 +5,23 @@ import deeplake
 import numpy as np
 import pytest
 
+
 @pytest.fixture(scope='session')
-def dummy_dataset(tmp_path_factory):
+def deeplake_dummy_dataset_dir(tmp_path_factory):
+    """Fixture to create a Deeplake dummy dataset directory for testing purposes.
+
+    This fixture generates a temporary Deeplake dataset directory with dummy image and label data
+    for use in testing. It creates 'train', 'val', and 'test' splits containing random image and label data.
+
+    Parameters:
+        tmp_path_factory (TempPathFactory): A temporary path factory provided by pytest.
+
+    Returns:
+        str: The path to the generated dummy dataset directory.
+    """
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset')
-# image, label
+    root_dir = tmp_path_factory.mktemp('temp_deeplake_dummy_dataset')
 
     num_samples = 30
     for split in ['train', 'val', 'test']:
@@ -36,11 +47,22 @@ def dummy_dataset(tmp_path_factory):
 
     return str(root_dir)
 
+
 @pytest.fixture(scope='session')
-def dummy_train_dataset(tmp_path_factory):
+def deeplake_dummy_train_dataset_dir(tmp_path_factory):
+    """Fixture to create a Deeplake dummy training dataset directory for testing purposes.
+
+    This fixture generates a temporary Deeplake dataset directory for training data with dummy image and label data.
+
+    Parameters:
+        tmp_path_factory (TempPathFactory): A temporary path factory provided by pytest.
+
+    Returns:
+        str: The path to the generated dummy training dataset directory.
+    """
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_train')
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_train')
 
     num_samples = 547
     ds = deeplake.dataset(root_dir)
@@ -64,11 +86,20 @@ def dummy_train_dataset(tmp_path_factory):
 
 
 @pytest.fixture(scope='session')
-def dummy_val_dataset(tmp_path_factory):
+def deeplake_dummy_val_dataset_dir(tmp_path_factory):
+    """Fixture to create a Deeplake dummy validation dataset directory for testing purposes.
+
+    This fixture generates a temporary Deeplake dataset directory for validation data with dummy image and label data.
+
+    Parameters:
+        tmp_path_factory (TempPathFactory): A temporary path factory provided by pytest.
+
+    Returns:
+        str: The path to the generated dummy validation dataset directory.
+    """
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_val')
-# image, label
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_val')
 
     num_samples = 233
     ds = deeplake.dataset(root_dir)
@@ -92,10 +123,20 @@ def dummy_val_dataset(tmp_path_factory):
 
 
 @pytest.fixture(scope='session')
-def dummy_test_dataset(tmp_path_factory):
+def deeplake_dummy_test_dataset_dir(tmp_path_factory):
+    """Fixture to create a Deeplake dummy test dataset directory for testing purposes.
+
+    This fixture generates a temporary Deeplake dataset directory for test data with dummy image and label data.
+
+    Parameters:
+        tmp_path_factory (TempPathFactory): A temporary path factory provided by pytest.
+
+    Returns:
+        str: The path to the generated dummy test dataset directory.
+    """
     label_img = ['normal', 'benign', 'malignant']
 
-    root_dir = tmp_path_factory.mktemp('bc_dummy_dataset_test')
+    root_dir = tmp_path_factory.mktemp('temp_bc_dummy_dataset_test')
 
     num_samples = 155
     ds = deeplake.dataset(root_dir)

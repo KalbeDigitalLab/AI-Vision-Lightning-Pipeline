@@ -62,6 +62,11 @@ class ResNet18(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass method on ResNet-18 architecture.
+
+        Reference:
+            https://arxiv.org/abs/1512.03385v1
+        """
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)

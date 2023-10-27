@@ -216,6 +216,20 @@ def cfg_physenet(cfg_physenet_global, tmp_path) -> DictConfig:
 
 @pytest.fixture(scope='package')
 def cfg_bodyresnet_global() -> DictConfig:
+    """Global Configuration for Body Part Classification.
+
+    Compose a global configuration for the body part classification task using Hydra.
+
+    The training config default:
+        num_epoch: 1,
+        trainer: 'cpu',
+        input_size: (384, 384),
+        batch_size: 4,
+        num_workers: 0,
+
+    Returns:
+        DictConfig: Hydra configuration
+    """
     with initialize(version_base='1.3', config_path='../configs'):
         cfg = compose(config_name='train.yaml',
                       return_hydra_config=True, overrides=['model=bodypartxr', 'data=bodypartxr'])
@@ -240,6 +254,17 @@ def cfg_bodyresnet_global() -> DictConfig:
 
 @pytest.fixture(scope='function')
 def cfg_bodyresnet18(cfg_bodyresnet_global, tmp_path) -> DictConfig:
+    """Configuration for Body Part Classification.
+
+    Compose a testing configuration experiment for body classification task using ResNet-18 architecture.
+
+    Args:
+        cfg_bodyresnet_global: Hydra global configuration
+        tmp_path: Output directory
+
+    Returns:
+        DictConfig: Hydra experiment configuration
+    """
     cfg = cfg_bodyresnet_global.copy()
 
     with open_dict(cfg):

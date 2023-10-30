@@ -1,7 +1,8 @@
 _target_: src.models.bcc_module.ClassificationLightningModule
+
 num_classes: 3
 lr: 0.0001
 net:
-  _target_: src.models.components.basic.ResNet18
+  _target_: src.models.components.layers.basic.ResNet18
   input_channels: 3
   num_classes: ${..num_classes}

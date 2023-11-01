@@ -14,7 +14,7 @@ class ClassificationLightningModule(LightningModule):
     net : torch.nn.Module
         The model module or configuration
     num_classes : int
-        Number of output classes, by default 10
+        Number of output classes, by default 3
     lr : float
         Optimizer learning rate, by default 0.00001
     """

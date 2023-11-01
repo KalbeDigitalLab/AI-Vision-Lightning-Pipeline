@@ -1,4 +1,4 @@
-target: src.data.bcc_datamodule.BreastCancerDataModule
+_target_: src.data.bcc_datamodule.BreastCancerDataModule
 train_dir: ${paths.train_dir}
 val_dir: ${paths.val_dir}
 test_dir: ${paths.test_dir}

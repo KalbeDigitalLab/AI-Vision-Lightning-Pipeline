@@ -216,11 +216,7 @@ def cfg_physenet(cfg_physenet_global, tmp_path) -> DictConfig:
 
 @pytest.fixture(scope='package')
 def cfg_bcresnet_global() -> DictConfig:
-    """Fixture for providing a global configuration for Breast Cancer Classification with ResNet.
-
-    Returns:
-        DictConfig: The global configuration for Breast Cancer Classification with ResNet.
-    """
+    """Fixture for providing a global configuration for Breast Cancer Classification with ResNet."""
     with initialize(version_base='1.3', config_path='../configs'):
         cfg = compose(config_name='train.yaml',
                       return_hydra_config=True, overrides=['model=bcc', 'data=bcc'])
@@ -245,15 +241,8 @@ def cfg_bcresnet_global() -> DictConfig:
 
 @pytest.fixture(scope='function')
 def cfg_bcresnet18(cfg_bcresnet_global, tmp_path) -> DictConfig:
-    """Fixture for providing a specific configuration for Breast Cancer Classification with ResNet.
-
-    Args:
-        cfg_bcresnet_global (DictConfig): Global configuration for Breast Cancer Classification with ResNet.
-        tmp_path (str): Temporary path for data.
-
-    Returns:
-        DictConfig: The configuration for Breast Cancer Classification with ResNet.
-    """
+    """Fixture for providing a specific configuration for Breast Cancer Classification with
+    ResNet."""
     cfg = cfg_bcresnet_global.copy()
 
     with open_dict(cfg):

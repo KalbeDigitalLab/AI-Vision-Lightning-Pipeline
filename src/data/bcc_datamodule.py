@@ -88,7 +88,6 @@ class BreastCancerDataModule(LightningDataModule):
             )
             if len(self.data_train) == 0:
                 raise ValueError('Train dataset is empty.')
-        # print("check setup data_train:", self.data_train)
 
         if stage in ['validation', 'fit', None]:
             if self.data_val is None:
@@ -105,8 +104,6 @@ class BreastCancerDataModule(LightningDataModule):
                 )
                 if len(self.data_test) == 0:
                     raise ValueError('Test dataset is empty.')
-        # print("check setup data_val:", self.data_val)
-        # print("check setup data_test:", self.data_test)
 
         if stage == 'predict':
             if self.data_test is None:
@@ -116,7 +113,6 @@ class BreastCancerDataModule(LightningDataModule):
                 )
                 if len(self.data_predict) == 0:
                     raise ValueError('Predict dataset is empty.')
-            # print("check setup data_predict:", self.data_predict)
 
     def train_dataloader(self):
         """Get a DataLoader for the training data.
@@ -131,7 +127,6 @@ class BreastCancerDataModule(LightningDataModule):
             pin_memory=self.hparams.pin_memory,
             shuffle=True,
         )
-    print('check train_dataloader :', train_dataloader)
 
     def val_dataloader(self):
         """Get a DataLoader for the validation data.

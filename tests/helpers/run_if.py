@@ -17,6 +17,7 @@ from tests.helpers.package_available import (
     _FAIRSCALE_AVAILABLE,
     _IS_WINDOWS,
     _MLFLOW_AVAILABLE,
+    _MONGOD_AVAILABLE,
     _NEPTUNE_AVAILABLE,
     _SH_AVAILABLE,
     _TPU_AVAILABLE,
@@ -39,6 +40,7 @@ class RunIf:
 
     def __new__(
         self,
+        min_cpus: int = 0,
         min_gpus: int = 0,
         min_torch: Optional[str] = None,
         max_torch: Optional[str] = None,
@@ -52,6 +54,7 @@ class RunIf:
         neptune: bool = False,
         comet: bool = False,
         mlflow: bool = False,
+        mongod: bool = False,
         **kwargs,
     ):
         """
@@ -73,6 +76,10 @@ class RunIf:
         """
         conditions = []
         reasons = []
+
+        if min_cpus:
+            conditions.append(torch.cpu.device_count() < min_cpus)
+            reasons.append(f'CPUs>={min_cpus}')
 
         if min_gpus:
             conditions.append(torch.cuda.device_count() < min_gpus)
@@ -130,6 +137,10 @@ class RunIf:
         if mlflow:
             conditions.append(not _MLFLOW_AVAILABLE)
             reasons.append('mlflow')
+
+        if mongod:
+            conditions.append(not _MONGOD_AVAILABLE)
+            reasons.append('mongod')
 
         reasons = [rs for cond, rs in zip(conditions, reasons) if cond]
         return pytest.mark.skipif(

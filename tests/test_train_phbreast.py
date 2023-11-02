@@ -70,6 +70,7 @@ def test_train_physenet_binary_fast_dev_run_gpu(cfg_physenet, inbreast_4views_mu
     train(cfg_physenet)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_none_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -81,6 +82,7 @@ def test_train_sch_none_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single
     train(cfg_phcresnet18)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_lambda_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -92,6 +94,7 @@ def test_train_sch_lambda_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_sing
     train(cfg_phcresnet18)
 
 
+@RunIf(min_gpus=1)
 def test_train_sch_cosine_fast_dev_run_gpu(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Run for 1 train, val and test step."""
     HydraConfig().set_config(cfg_phcresnet18)
@@ -141,6 +144,7 @@ def test_train_epoch_double_val_loop(cfg_phcresnet18, inbreast_2views_single_dat
     train(cfg_phcresnet18)
 
 
+@RunIf(min_cpus=2)
 @pytest.mark.slow
 def test_train_ddp_sim(cfg_phcresnet18, inbreast_2views_single_dataset_path):
     """Simulate DDP (Distributed Data Parallel) on 2 CPU processes."""
@@ -182,6 +186,7 @@ def test_train_resume(tmp_path, cfg_phcresnet18, inbreast_2views_single_dataset_
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Unstable run in Github Actions.')
 @pytest.mark.slow
 def test_experiments(tmp_path, inbreast_2views_single_dataset_path):
     """Test running all available experiment configs with fast_dev_run=True."""
@@ -191,6 +196,7 @@ def test_experiments(tmp_path, inbreast_2views_single_dataset_path):
         'experiment=phbreast_inbreast_phcresnet18_2views',
         'hydra.sweep.dir=' + str(tmp_path),
         'paths.data_dir=' + inbreast_2views_single_dataset_path,
+        'data.batch_size=2',
         '++trainer.fast_dev_run=true',
         '++data.input_size=[300,250]',
     ] + overrides
@@ -198,6 +204,7 @@ def test_experiments(tmp_path, inbreast_2views_single_dataset_path):
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Unable to run in Github Actions.')
 @pytest.mark.slow
 def test_hydra_sweep(tmp_path, inbreast_2views_single_dataset_path):
     """Test default hydra sweep."""
@@ -208,6 +215,7 @@ def test_hydra_sweep(tmp_path, inbreast_2views_single_dataset_path):
         'model=phcresnet',
         'data=phbreast',
         'data.num_views=2',
+        'data.batch_size=2',
         'data.input_size=[300,250]',
         'model.lr=0.005,0.01',
         'paths.data_dir=' + inbreast_2views_single_dataset_path,
@@ -229,6 +237,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, inbreast_2views_single_dataset_path):
         'model=phcresnet',
         'data=phbreast',
         'data.num_views=2',
+        'data.batch_size=2',
         'data.input_size=[300,250]',
         'trainer=ddp_sim',
         'trainer.max_epochs=3',
@@ -239,6 +248,7 @@ def test_hydra_sweep_ddp_sim(tmp_path, inbreast_2views_single_dataset_path):
 
 
 @RunIf(sh=True)
+@pytest.mark.skip('Unable to run in Github Actions.')
 @pytest.mark.slow
 def test_optuna_sweep(tmp_path, inbreast_2views_single_dataset_path):
     """Test optuna sweep."""

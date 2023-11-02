@@ -12,7 +12,7 @@ hydra-optuna-sweeper==1.2.0
 
 # --------- loggers --------- #
 wandb
-neptune
+# neptune
 # mlflow
 # comet-ml
 # aim>=3.16.2  # no lower than 3.16.2, see https://github.com/aimhubio/aim/issues/2550
@@ -30,4 +30,7 @@ pyrootutils     # standardizing the project root setup
 pytest          # tests
 fiftyone        # fiftyone dataset
 xxhash          # hash code for testings
+deeplake        # create and load datasets
+opencv-python-headless<4.6.0
+Pillow>=10.0.0
 # sh            # for running bash commands in some tests (linux/macos only)

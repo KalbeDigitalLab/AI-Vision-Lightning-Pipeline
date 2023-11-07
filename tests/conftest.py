@@ -252,3 +252,65 @@ def cfg_bcresnet18(cfg_bcresnet_global, tmp_path) -> DictConfig:
     yield cfg
 
     GlobalHydra.instance().clear()
+
+
+@pytest.fixture(scope='package')
+def cfg_bodyresnet_global() -> DictConfig:
+    """Global Configuration for Body Part Classification.
+
+    Compose a global configuration for the body part classification task using Hydra.
+
+    The training config default:
+        num_epoch: 1,
+        trainer: 'cpu',
+        input_size: (384, 384),
+        batch_size: 4,
+        num_workers: 0,
+
+    Returns:
+        DictConfig: Hydra configuration
+    """
+    with initialize(version_base='1.3', config_path='../configs'):
+        cfg = compose(config_name='train.yaml',
+                      return_hydra_config=True, overrides=['model=bodypartxr', 'data=bodypartxr'])
+
+        # set defaults for all tests
+        with open_dict(cfg):
+            cfg.paths.root_dir = str(
+                pyrootutils.find_root(indicator='.project-root'))
+            cfg.trainer.max_epochs = 1
+            cfg.trainer.accelerator = 'cpu'
+            cfg.trainer.devices = 1
+            cfg.data.input_size = [384, 384]
+            cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
+            cfg.data.pin_memory = False
+            cfg.extras.print_config = False
+            cfg.extras.enforce_tags = False
+            cfg.logger = None
+
+    return cfg
+
+
+@pytest.fixture(scope='function')
+def cfg_bodyresnet18(cfg_bodyresnet_global, tmp_path) -> DictConfig:
+    """Configuration for Body Part Classification.
+
+    Compose a testing configuration experiment for body classification task using ResNet-18 architecture.
+
+    Args:
+        cfg_bodyresnet_global: Hydra global configuration
+        tmp_path: Output directory
+
+    Returns:
+        DictConfig: Hydra experiment configuration
+    """
+    cfg = cfg_bodyresnet_global.copy()
+
+    with open_dict(cfg):
+        cfg.paths.output_dir = str(tmp_path)
+        cfg.paths.log_dir = str(tmp_path)
+        cfg.model.net._target_ = 'src.models.components.resnet18.ResNet18'
+    yield cfg
+
+    GlobalHydra.instance().clear()

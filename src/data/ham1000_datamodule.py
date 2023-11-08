@@ -1,5 +1,4 @@
 from typing import Optional, Tuple, Union
-
 import deeplake
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset 
@@ -7,6 +6,17 @@ from torchvision import transforms
 from src.data.components.ham1000_parser import ham1000dataset
 
 class HamCancerDataModule(LightningDataModule):
+    """ HamCancerDataModule: A PyTorch Lightning Data Module for skin Cancer Image Classification.
+
+    Parameters:
+        train_dir: (Union[str, deeplake.dataset]): The directory containing the training data or a deeplake dataset.
+        val_dir (Union[str, deeplake.dataset]): The directory containing the validation data or a deeplake dataset.
+        test_dir (Union[str, deeplake.dataset]): The directory containing the test data or a deeplake dataset.
+        input_size (Tuple[int, int], optional): The size of the input images. Defaults to [600, 500].
+        batch_size (int, optional): The batch size to use for training, validation, and testing. Defaults to 64.
+        num_workers (int, optional): The number of workers to use for loading data. Defaults to 0.
+        pin_memory (bool, optional): Whether to pin memory when loading data. Defaults to False.
+    """
     def __init__(
         self,
         train_dir: Union[str, deeplake.dataset],

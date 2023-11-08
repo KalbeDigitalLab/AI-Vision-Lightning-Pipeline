@@ -7,14 +7,14 @@ from torch.utils.data import Dataset
 
 
 class ham1000dataset(Dataset):
-    """DeepLakeDataset. A PyTorch Dataset Wrapper for DeepLake Datasets.
+    """ham1000dataset. A PyTorch Dataset Wrapper for DeepLake Datasets.
 
     Parameters:
-        data_dir (str or deeplake.Dataset): The DeepLake dataset object or the path to the dataset directory. If `data_dir` is a string, it should be the path to the DeepLake dataset directory. If `data_dir` is a deeplake.Dataset object, it represents the dataset directly.
+        dh (str or deeplake.Dataset): The DeepLake dataset object or the path to the dataset directory. If `dh` is a string, it should be the path to the DeepLake dataset directory. If `dh` is a deeplake.Dataset object, it represents the dataset directly.
         transform (Optional[torchvision.transforms.Compose], optional): A data augmentation pipeline to apply to the images. Defaults to None.
 
     Raises:
-        TypeError: If the `data_dir` parameter is neither a valid DeepLake dataset object nor a string.
+        TypeError: If the `dh` parameter is neither a valid DeepLake dataset object nor a string.
 
     Attributes:
         transform (Optional[torchvision.transforms.Compose]): A data augmentation pipeline for transforming the images.

@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, Union
 
 import deeplake
-from pytorch_lightning import LightningDataModule
+from lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 

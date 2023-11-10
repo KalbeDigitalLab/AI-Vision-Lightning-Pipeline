@@ -215,6 +215,46 @@ def cfg_physenet(cfg_physenet_global, tmp_path) -> DictConfig:
 
 
 @pytest.fixture(scope='package')
+def cfg_bcresnet_global() -> DictConfig:
+    """Fixture for providing a global configuration for Breast Cancer Classification with ResNet."""
+    with initialize(version_base='1.3', config_path='../configs'):
+        cfg = compose(config_name='train.yaml',
+                      return_hydra_config=True, overrides=['model=bcc', 'data=bcc'])
+
+        # set defaults for all tests
+        with open_dict(cfg):
+            cfg.paths.root_dir = str(
+                pyrootutils.find_root(indicator='.project-root'))
+            cfg.trainer.max_epochs = 1
+            cfg.trainer.accelerator = 'cpu'
+            cfg.trainer.devices = 1
+            cfg.data.input_size = [256, 256]
+            cfg.data.num_workers = 0
+            cfg.data.batch_size = 4
+            cfg.data.pin_memory = False
+            cfg.extras.print_config = False
+            cfg.extras.enforce_tags = False
+            cfg.logger = None
+
+    return cfg
+
+
+@pytest.fixture(scope='function')
+def cfg_bcresnet18(cfg_bcresnet_global, tmp_path) -> DictConfig:
+    """Fixture for providing a specific configuration for Breast Cancer Classification with
+    ResNet."""
+    cfg = cfg_bcresnet_global.copy()
+
+    with open_dict(cfg):
+        cfg.paths.output_dir = str(tmp_path)
+        cfg.paths.log_dir = str(tmp_path)
+        cfg.model.net._target_ = 'src.models.components.layers.basic.ResNet18'
+    yield cfg
+
+    GlobalHydra.instance().clear()
+
+
+@pytest.fixture(scope='package')
 def cfg_bodyresnet_global() -> DictConfig:
     """Global Configuration for Body Part Classification.
 

@@ -1,0 +1,39 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: bcc.yaml
+  - override /model: bcc.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["bcc", "ResNet18"]
+
+seed: 12345
+
+trainer:
+  min_epochs: 1
+  max_epochs: 50
+  gradient_clip_val: 0.5
+
+model:
+  num_classes: ${data.num_classes}
+  task: multiclass
+  lr: 0.0001
+  net:
+    input_channels: 3
+
+data:
+  batch_size: 64
+
+logger:
+  wandb:
+    tags: ${tags}
+    group: "bcc"
+  aim:
+    experiment: "bcc"
